@@ -1,0 +1,12 @@
+{
+    "configurations": [
+        {
+            "name": "libdragon",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "${workspaceFolder}/../../libdragon/**"
+            ]
+        }
+    ],
+    "version": 4
+}

@@ -1,0 +1,8 @@
+TBD-64.*
+*.o
+*.sprite
+.vscode/ipch/
+.DS_Store
+*~
+filesystem/
+build/
