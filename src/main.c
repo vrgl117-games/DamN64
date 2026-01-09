@@ -9,10 +9,12 @@
 #include <stdlib.h>
 #include "controls.h"
 #include "font.h"
+#include "game.h"
 #include "screens.h"
 
-screen_t screen = intro;
+screen_t screen = game;
 
+// main: Initialize systems and run main loop.
 int main()
 {
     display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_RESAMPLE_ANTIALIAS);
@@ -25,6 +27,7 @@ int main()
 
     new_timer(TIMER_TICKS(50000), TF_CONTINUOUS, screen_timer_title);
     surface_t *disp = NULL;
+    game_init();
 
     while (true)
     {
@@ -44,6 +47,8 @@ int main()
         case title: // press start.
             screen_title(disp);
             break;
+        case game: // main game loop
+            screen_game(disp, keys);
         }
 
         display_show(disp);

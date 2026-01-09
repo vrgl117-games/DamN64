@@ -7,17 +7,20 @@
  */
 
 #include "rdpq.h"
+#include "game.h"
 #include "screens.h"
 #include "sprite.h"
 
 static volatile int tick = 0;
 
+// screen_init: Initialize screen state.
 void screen_init()
 {
 }
 
 // display the n64 logo and then the VRGL117 Games logo.
 // return true when the animation is done.
+// screen_intro: Render intro sequence, returns true when done.
 bool screen_intro(display_context_t disp)
 {
     static int anim = 0;
@@ -75,11 +78,20 @@ bool screen_intro(display_context_t disp)
     return (anim >= 82);
 }
 
+// screen_timer_title: Advance intro timer.
 void screen_timer_title()
 {
     tick++;
 }
 
+// screen_title: Render title screen.
 void screen_title(display_context_t disp)
 {
+}
+
+// screen_game: Update and render the game screen.
+void screen_game(display_context_t disp, control_t keys)
+{
+    game_update(keys);
+    game_draw(disp);
 }

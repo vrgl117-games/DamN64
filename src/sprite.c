@@ -11,6 +11,7 @@
 
 #include "sprite.h"
 
+// sprite_loadf: Format sprite path and load it.
 sprite_t *sprite_loadf(const char *const format, ...)
 {
     char buffer[256];

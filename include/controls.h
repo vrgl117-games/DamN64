@@ -13,11 +13,11 @@
 
 typedef enum direction
 {
-    d_none,
-    d_up,
-    d_down,
-    d_left,
-    d_right
+    d_none = 0,
+    d_up = 1 << 0,
+    d_down = 1 << 1,
+    d_left = 1 << 2,
+    d_right = 1 << 3
 } direction_t;
 
 typedef struct
@@ -25,9 +25,9 @@ typedef struct
     bool A;
     bool B;
     bool start;
+    bool c_up;
+    bool c_down;
 
-    bool fps;
-    bool pressed;
     bool plugged;
     bool rumble;
 

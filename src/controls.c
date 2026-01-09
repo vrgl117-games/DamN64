@@ -10,6 +10,7 @@
 
 #include "controls.h"
 
+// controls_get_keys: Poll controller input and build control state.
 control_t controls_get_keys()
 {
     control_t keys = {0};
@@ -29,30 +30,25 @@ control_t controls_get_keys()
 
     keys.rumble = (joypad_get_accessory_type(JOYPAD_PORT_1) == JOYPAD_ACCESSORY_TYPE_RUMBLE_PAK);
 
-    keys.pressed = true;
-
     if (down.a)
         keys.A = true;
-    else if (down.b)
+    if (down.b)
         keys.B = true;
-    else if (down.d_up || down.c_up || stick_y > 0)
-        keys.direction = d_up;
-    else if (down.d_down || down.c_down || stick_y < 0)
-        keys.direction = d_down;
-    else if (down.d_left || down.c_left || stick_x < 0)
-        keys.direction = d_left;
-    else if (down.d_right || down.c_right || stick_x > 0)
-        keys.direction = d_right;
-    else if (down.start)
+    if (down.c_up)
+        keys.c_up = true;
+    if (down.c_down)
+        keys.c_down = true;
+
+    if (down.d_up || stick_y > 0 || pressed.d_up)
+        keys.direction |= d_up;
+    if (down.d_down || stick_y < 0 || pressed.d_down)
+        keys.direction |= d_down;
+    if (down.d_left || stick_x < 0 || pressed.d_left)
+        keys.direction |= d_left;
+    if (down.d_right || stick_x > 0 || pressed.d_right)
+        keys.direction |= d_right;
+    if (down.start)
         keys.start = true;
-    else if (down.l && down.r)
-        keys.fps = true;
-    else if (down.l && pressed.r)
-        keys.fps = true;
-    else if (pressed.l && down.r)
-        keys.fps = true;
-    else
-        keys.pressed = false;
 
     return keys;
 }

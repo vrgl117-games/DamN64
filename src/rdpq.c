@@ -8,6 +8,7 @@
 
 #include "rdpq.h"
 
+// rdpq_draw_faded_sprite: Draw sprite with a fade alpha.
 void rdpq_draw_faded_sprite(sprite_t *sp, int x, int y, uint8_t alpha)
 {
     rdpq_set_mode_standard();
@@ -18,6 +19,7 @@ void rdpq_draw_faded_sprite(sprite_t *sp, int x, int y, uint8_t alpha)
     rdpq_sprite_blit(sp, x, y, NULL);
 }
 
+// rdpq_draw_filled_fullscreen: Fill entire screen with color.
 void rdpq_draw_filled_fullscreen(color_t color)
 {
     uint32_t w = display_get_width();
@@ -25,12 +27,14 @@ void rdpq_draw_filled_fullscreen(color_t color)
     rdpq_draw_filled_rectangle_size(0, 0, w, h, color);
 }
 
+// rdpq_draw_filled_rectangle_size: Fill rectangle with color.
 void rdpq_draw_filled_rectangle_size(int x, int y, int width, int height, color_t color)
 {
     rdpq_set_mode_fill(color);
     rdpq_fill_rectangle(x, y, x + width, y + height);
 }
 
+// rdpq_draw_filled_rectangle_with_border_size: Fill rectangle with border.
 void rdpq_draw_filled_rectangle_with_border_size(int x, int y, int width, int height, color_t color, color_t border_color)
 {
     rdpq_set_mode_fill(border_color);
@@ -40,6 +44,7 @@ void rdpq_draw_filled_rectangle_with_border_size(int x, int y, int width, int he
     rdpq_fill_rectangle(x + 2, y + 2, x + width - 2, y + height - 2);
 }
 
+// rdpq_draw_sprite: Draw sprite with optional mirroring.
 void rdpq_draw_sprite(sprite_t *sp, int x, int y, mirror_t mirror)
 {
     rdpq_blitparms_t parms = {0};
