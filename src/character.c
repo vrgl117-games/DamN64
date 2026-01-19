@@ -26,9 +26,12 @@ static int character_y[CHARACTER_COUNT] = {0};
 static int active_player = 0;
 static int char_facing[CHARACTER_COUNT] = {0};
 static int iso_half_h = 0;
+static int stored_cam_y = 0;
 
-// character_init: Load vehicle sprites and initialize character state.
-void character_init(int base_x, int base_y, int offset_x, int offset_y, int iso_half_h_value)
+/**
+ * @brief character_init: Load vehicle sprites and initialize character state.
+ */
+void character_init(int base_x, int base_y, int offset_x, int offset_y, int iso_half_h_value, int cam_y)
 {
     police_sprites[CAR_DIR_N] = sprite_load("rom:/gfx/sprites/isometric-vehicles/police_N.sprite");
     police_sprites[CAR_DIR_NE] = sprite_load("rom:/gfx/sprites/isometric-vehicles/police_NE.sprite");
@@ -50,6 +53,7 @@ void character_init(int base_x, int base_y, int offset_x, int offset_y, int iso_
 
     active_player = 0;
     iso_half_h = iso_half_h_value;
+    stored_cam_y = cam_y;
 
     for (int i = 0; i < CHARACTER_COUNT; i++)
     {
@@ -59,7 +63,9 @@ void character_init(int base_x, int base_y, int offset_x, int offset_y, int iso_
     }
 }
 
-// character_update: Update movement, facing, and active character.
+/**
+ * @brief character_update: Update movement, facing, and active character.
+ */
 void character_update(control_t keys, character_block_fn is_blocked)
 {
     if (keys.c_up || keys.c_down)
@@ -91,7 +97,16 @@ void character_update(control_t keys, character_block_fn is_blocked)
         int next_x = *player_x + dir_x * step_x;
         int next_y = *player_y + dir_y * step_y;
 
-        if (!is_blocked || !is_blocked(next_x, next_y))
+        // Check collision at center point
+        // AABB collision with buildings is handled in is_blocked_position
+        bool blocked = false;
+        
+        if (is_blocked)
+        {
+            blocked = is_blocked(next_x, next_y);
+        }
+
+        if (!blocked)
         {
             *player_x = next_x;
             *player_y = next_y;
@@ -128,8 +143,34 @@ void character_update(control_t keys, character_block_fn is_blocked)
     }
 }
 
-// character_draw: Render both vehicles in depth order.
-void character_draw(int cam_x, int cam_y)
+/**
+ * @brief character_draw_single: Render a single vehicle by index.
+ */
+void character_draw_single(int index, int cam_x)
+{
+    if (index < 0 || index >= CHARACTER_COUNT)
+        return;
+
+    int dir = char_facing[index];
+    if (dir < 0 || dir >= CAR_DIR_COUNT)
+        dir = CAR_DIR_S;
+
+    sprite_t *car = (index == 0) ? police_sprites[dir] : ambulance_sprites[dir];
+    if (!car)
+        return;
+
+    rdpq_set_mode_copy(true);
+
+    int screen_x = character_x[index] - cam_x - (car->width / 2);
+    int screen_y = character_y[index] - stored_cam_y - car->height + iso_half_h;
+
+    rdpq_sprite_blit(car, screen_x, screen_y, NULL);
+}
+
+/**
+ * @brief character_draw: Render both vehicles in depth order.
+ */
+void character_draw(int cam_x)
 {
     int first = 0;
     int second = 1;
@@ -140,6 +181,8 @@ void character_draw(int cam_x, int cam_y)
         first = 1;
         second = 0;
     }
+
+    rdpq_set_mode_copy(true);
 
     for (int i = 0; i < CHARACTER_COUNT; i++)
     {
@@ -153,15 +196,15 @@ void character_draw(int cam_x, int cam_y)
             continue;
 
         int screen_x = character_x[index] - cam_x - (car->width / 2);
-        int screen_y = character_y[index] - cam_y - car->height + iso_half_h;
+        int screen_y = character_y[index] - stored_cam_y - car->height + iso_half_h;
 
-        rdpq_set_mode_standard();
-        rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
         rdpq_sprite_blit(car, screen_x, screen_y, NULL);
     }
 }
 
-// character_get_position: Fetch a character's world position.
+/**
+ * @brief character_get_position: Fetch a character's world position.
+ */
 void character_get_position(int index, int *x, int *y)
 {
     if (index < 0 || index >= CHARACTER_COUNT)
@@ -173,7 +216,9 @@ void character_get_position(int index, int *x, int *y)
         *y = character_y[index];
 }
 
-// character_get_active_player: Return active player index.
+/**
+ * @brief character_get_active_player: Return active player index.
+ */
 int character_get_active_player(void)
 {
     return active_player;

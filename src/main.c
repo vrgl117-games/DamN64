@@ -20,6 +20,10 @@ int main()
     display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_RESAMPLE_ANTIALIAS);
     dfs_init(DFS_DEFAULT_LOCATION);
     rdpq_init();
+#ifndef NDEBUG
+    debug_init(DEBUG_FEATURE_LOG_ISVIEWER);
+    rdpq_debug_start();
+#endif
     joypad_init();
     timer_init();
 
@@ -51,7 +55,6 @@ int main()
             screen_game(disp, keys);
         }
 
-        display_show(disp);
     }
 
     // cleanup, never called

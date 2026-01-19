@@ -11,17 +11,14 @@
 
 #include "controls.h"
 
-#define MAP_WIDTH 10
-#define MAP_HEIGHT 10
+#define MAP_WIDTH 27
+#define MAP_HEIGHT 27
 
 typedef enum
 {
     TILE_NONE = 0,
     TILE_BASE = 1,
-    TILE_WALL_BOTTOM_LEFT = 2,
-    TILE_WALL_BOTTOM_RIGHT = 3,
-    TILE_WALL_TOP_LEFT = 4,
-    TILE_WALL_TOP_RIGHT = 5,
+    TILE_BUILDING = 2,
     TILE_COUNT
 } tile_id_t;
 

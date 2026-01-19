@@ -9,20 +9,35 @@
 #include "rdpq.h"
 #include "sprite.h"
 #include "character.h"
-#include <math.h>
 
 // Logical diamond footprint in screen space (not necessarily sprite size)
 #define ISO_W 64
 #define ISO_H 32
 
 static sprite_t *base_tile = NULL;
-static sprite_t *wall_bottom_left = NULL;
-static sprite_t *wall_bottom_right = NULL;
-static sprite_t *wall_top_left = NULL;
-static sprite_t *wall_top_right = NULL;
+static sprite_t *building_sprite = NULL;
 static sprite_t *tile_sprites[TILE_COUNT] = {0};
 
+// Split-screen configuration
+#define SPLIT_HYSTERESIS 50 // Buffer to prevent flickering
+#define DIVIDER_WIDTH 4     // Width of the divider line
+
+static bool split_screen_active = false;
+
+// Debug overlay toggle (L button)
+static bool debug_enabled = true;
+
+// Which player is on the left half in split mode (0 = P1, 1 = P2)
+static int left_player = 0;
+
+// Cameras X for each half (used in split mode)
+static int cam_x_left = 0;
+static int cam_x_right = 0;
+
+// Shared camera X (used in single mode)
 static int cam_x = 0;
+
+// Fixed vertical camera offset (centers map on screen, computed once in game_init)
 static int cam_y = 0;
 
 // Sprite dimensions (actual texture)
@@ -41,149 +56,338 @@ static int map_pixel_height = 0;
 static int map_origin_x = 0;
 static int map_origin_y = 0;
 
-static const color_t tile_bg = RGBA32(132, 99, 64, 255);
+// blue background for tiles
+static const color_t tile_bg = RGBA32(63, 124, 182, 255);
 
-// in_bounds: Check if a tile coordinate is inside the map.
+// Maximum number of buildings we track for collision
+#define MAX_BUILDINGS 16
+
+// Building collision uses 2 boxes in a T-shape to match isometric base
+typedef struct
+{
+    int world_x; // Center X in world coords
+    int world_y; // Center Y in world coords
+    int grid_x;  // Grid X position
+    int grid_y;  // Grid Y position
+    // Box 1: Left side of building (going down-left in iso)
+    int box1_off_x;
+    int box1_off_y;
+    int box1_half_w;
+    int box1_half_h;
+    // Box 2: Right side of building (going down-right in iso)
+    int box2_off_x;
+    int box2_off_y;
+    int box2_half_w;
+    int box2_half_h;
+} building_bbox_t;
+
+static building_bbox_t building_boxes[MAX_BUILDINGS];
+static int building_count = 0;
+
+// Vehicle collision box dimensions (world space)
+static int vehicle_half_w = 10;  // Width
+static int vehicle_half_h = 8;   // Height
+static int vehicle_offset_y = 8; // Offset to move box lower
+
+/**
+ * @brief in_bounds: Check if a tile coordinate is inside the map.
+ */
 static bool in_bounds(int x, int y)
 {
     return (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT);
 }
 
-// is_blocking_tile: Return true if the tile blocks movement.
-static bool is_blocking_tile(int tile)
-{
-    return tile == TILE_NONE || tile == TILE_WALL_BOTTOM_LEFT || tile == TILE_WALL_BOTTOM_RIGHT;
-}
-
-// point_in_diamond: Check if a world point falls inside a tile diamond.
-static bool point_in_diamond(int world_x, int world_y, int grid_x, int grid_y, int half_w, int half_h)
-{
-    int center_x = map_origin_x + (grid_x - grid_y) * half_w + half_w;
-    int center_y = map_origin_y + (grid_x + grid_y) * half_h + half_h;
-
-    int dx = world_x - center_x;
-    int dy = world_y - center_y;
-    int adx = dx < 0 ? -dx : dx;
-    int ady = dy < 0 ? -dy : dy;
-
-    return (long long)adx * half_h + (long long)ady * half_w <= (long long)half_w * half_h;
-}
-
-// world_to_grid: Convert world coordinates to grid tile indices.
+/**
+ * @brief world_to_grid: Convert world coordinates to grid tile indices.
+ */
 static bool world_to_grid(int world_x, int world_y, int *grid_x, int *grid_y)
 {
-    if (step_x <= 0 || step_y <= 0)
-        return false;
+    int half_w = step_x / 2;         // 32
+    int half_h = step_y;             // 16
+    int denom = 2 * half_w * half_h; // 1024
 
-    int half_w = step_x / 2;
-    int half_h = step_y;
+    // Offset to tile center
+    int local_x = world_x - map_origin_x - half_w;
+    int local_y = world_y - map_origin_y - half_h;
 
-    if (half_w <= 0 || half_h <= 0)
-        return false;
+    // Inverse isometric projection with rounding
+    int gx_num = local_x * half_h + local_y * half_w;
+    int gy_num = local_y * half_w - local_x * half_h;
 
-    double local_x = (double)(world_x - map_origin_x - half_w);
-    double local_y = (double)(world_y - map_origin_y - half_h);
+    int gx = (gx_num >= 0) ? (gx_num + denom / 2) / denom : (gx_num - denom / 2) / denom;
+    int gy = (gy_num >= 0) ? (gy_num + denom / 2) / denom : (gy_num - denom / 2) / denom;
 
-    double gx = (local_x / (double)half_w + local_y / (double)half_h) * 0.5;
-    double gy = (local_y / (double)half_h - local_x / (double)half_w) * 0.5;
+    *grid_x = gx;
+    *grid_y = gy;
 
-    int base_x = (int)floor(gx);
-    int base_y = (int)floor(gy);
-
-    for (int dy = -1; dy <= 1; dy++)
-    {
-        for (int dx = -1; dx <= 1; dx++)
-        {
-            int cx = base_x + dx;
-            int cy = base_y + dy;
-            if (!in_bounds(cx, cy))
-                continue;
-            if (point_in_diamond(world_x, world_y, cx, cy, half_w, half_h))
-            {
-                *grid_x = cx;
-                *grid_y = cy;
-                return true;
-            }
-        }
-    }
-
-    return false;
+    return in_bounds(gx, gy);
 }
 
-// is_blocked_position: Return true if a world position is blocked.
+/**
+ * @brief is_blocked_position: Return true if a world position is blocked.
+ * Uses bounding box collision against buildings.
+ */
 static bool is_blocked_position(int world_x, int world_y)
 {
     int grid_x = 0;
     int grid_y = 0;
 
+    // Out of map bounds = blocked
     if (!world_to_grid(world_x, world_y, &grid_x, &grid_y))
         return true;
 
+    // TILE_NONE = blocked (void/water)
     int tile = game_map.tiles[grid_y][grid_x];
-    return is_blocking_tile(tile);
+    if (tile == TILE_NONE)
+        return true;
+
+    // Vehicle position with offset
+    int vx = world_x;
+    int vy = world_y + vehicle_offset_y;
+
+    // Check collision against all building bounding boxes (2 boxes per building)
+    for (int i = 0; i < building_count; i++)
+    {
+        building_bbox_t *b = &building_boxes[i];
+
+        // Check box 1 (left side of building)
+        int dx1 = vx - (b->world_x + b->box1_off_x);
+        int dy1 = vy - (b->world_y + b->box1_off_y);
+        if (dx1 < 0)
+            dx1 = -dx1;
+        if (dy1 < 0)
+            dy1 = -dy1;
+
+        int combined_hw1 = vehicle_half_w + b->box1_half_w;
+        int combined_hh1 = vehicle_half_h + b->box1_half_h;
+
+        if (dx1 < combined_hw1 && dy1 < combined_hh1)
+            return true;
+
+        // Check box 2 (right side of building)
+        int dx2 = vx - (b->world_x + b->box2_off_x);
+        int dy2 = vy - (b->world_y + b->box2_off_y);
+        if (dx2 < 0)
+            dx2 = -dx2;
+        if (dy2 < 0)
+            dy2 = -dy2;
+
+        int combined_hw2 = vehicle_half_w + b->box2_half_w;
+        int combined_hh2 = vehicle_half_h + b->box2_half_h;
+
+        if (dx2 < combined_hw2 && dy2 < combined_hh2)
+            return true;
+    }
+
+    return false;
 }
 
-// draw_map: Render the isometric tile map.
-static void draw_map(map_t *map)
+/**
+ * @brief draw_debug_rect: Draw a rectangle outline for debug visualization.
+ */
+static void draw_debug_rect(int x1, int y1, int x2, int y2, color_t color)
+{
+    rdpq_set_mode_fill(color);
+    // Top edge
+    rdpq_fill_rectangle(x1, y1, x2, y1 + 1);
+    // Bottom edge
+    rdpq_fill_rectangle(x1, y2 - 1, x2, y2);
+    // Left edge
+    rdpq_fill_rectangle(x1, y1, x1 + 1, y2);
+    // Right edge
+    rdpq_fill_rectangle(x2 - 1, y1, x2, y2);
+}
+
+/**
+ * @brief draw_debug_collision: Draw collision boxes for buildings and vehicle.
+ */
+static void draw_debug_collision(int current_cam_x)
+{
+    // Draw building collision boxes (red) - 2 boxes per building
+    color_t building_color = RGBA32(255, 0, 0, 255);
+    for (int i = 0; i < building_count; i++)
+    {
+        building_bbox_t *b = &building_boxes[i];
+
+        int base_screen_x = b->world_x - current_cam_x;
+        int base_screen_y = b->world_y - cam_y;
+
+        // Box 1 (left side)
+        int screen_x1 = base_screen_x + b->box1_off_x;
+        int screen_y1 = base_screen_y + b->box1_off_y;
+        draw_debug_rect(screen_x1 - b->box1_half_w, screen_y1 - b->box1_half_h,
+                        screen_x1 + b->box1_half_w, screen_y1 + b->box1_half_h, building_color);
+
+        // Box 2 (right side)
+        int screen_x2 = base_screen_x + b->box2_off_x;
+        int screen_y2 = base_screen_y + b->box2_off_y;
+        draw_debug_rect(screen_x2 - b->box2_half_w, screen_y2 - b->box2_half_h,
+                        screen_x2 + b->box2_half_w, screen_y2 + b->box2_half_h, building_color);
+    }
+
+    // Draw active vehicle collision box (green)
+    color_t vehicle_color = RGBA32(0, 255, 0, 255);
+    int active = character_get_active_player();
+    int vx, vy;
+    character_get_position(active, &vx, &vy);
+
+    int screen_x = vx - current_cam_x;
+    int screen_y = vy - cam_y + vehicle_offset_y; // Apply offset to move box lower
+
+    int x1 = screen_x - vehicle_half_w;
+    int y1 = screen_y - vehicle_half_h;
+    int x2 = screen_x + vehicle_half_w;
+    int y2 = screen_y + vehicle_half_h;
+
+    draw_debug_rect(x1, y1, x2, y2, vehicle_color);
+}
+
+/**
+ * @brief draw_scene_depth_sorted: Draw map then characters.
+ * Simple approach: all tiles first (depth-sorted), then all characters on top.
+ */
+static void draw_scene_depth_sorted(map_t *map, int cam_x, int view_width)
 {
     const int origin_x = map_origin_x;
     const int origin_y = map_origin_y;
-
-    const int screen_w = display_get_width();
     const int screen_h = display_get_height();
 
-    rdpq_set_mode_standard();
+    int half_w = step_x / 2;
+    int half_h = step_y;
 
-    for (int y = 0; y < map->height; y++)
+    int max_depth = map->width + map->height - 2;
+
+    // === PASS 1: Draw ALL tiles (base + buildings) in depth order ===
+    rdpq_set_mode_standard();
+    rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
+
+    for (int depth = 0; depth <= max_depth; depth++)
     {
-        for (int x = 0; x < map->width; x++)
+        for (int x = 0; x <= depth && x < map->width; x++)
         {
-            int half_w = step_x / 2;
-            int half_h = step_y;
-            int world_x = origin_x + (x - y) * half_w;
-            int world_y = origin_y + (x + y) * half_h;
-            int screen_x = world_x - cam_x;
+            int y = depth - x;
+            if (y < 0 || y >= map->height)
+                continue;
 
             int tile_id = map->tiles[y][x];
-
             if (tile_id < 0 || tile_id >= TILE_COUNT)
-                tile_id = TILE_NONE;
+                continue;
+
             sprite_t *tile = tile_sprites[tile_id];
             if (!tile)
                 continue;
 
-            int screen_y = world_y - cam_y + (spr_h - tile->height);
+            int world_x = origin_x + (x - y) * half_w;
+            int world_y = origin_y + (x + y) * half_h;
+            int screen_x = world_x - cam_x;
 
-            // Culling should use sprite bounds (not logical bounds)
-            if (screen_x < -tile->width || screen_x > screen_w ||
+            int screen_y;
+            if (tile_id == TILE_BUILDING)
+            {
+                // Align building base with base tile
+                screen_y = world_y - cam_y - (tile->height - spr_h);
+            }
+            else
+            {
+                // Base tile
+                screen_y = world_y - cam_y;
+            }
+
+            if (screen_x < -tile->width || screen_x > view_width ||
                 screen_y < -tile->height || screen_y > screen_h)
                 continue;
 
-            rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
             rdpq_sprite_blit(tile, screen_x, screen_y, NULL);
         }
     }
+
+    // === PASS 2: Draw ALL characters on top ===
+    character_draw(cam_x);
+
+    // === PASS 3: Redraw top half of buildings only when car is nearby ===
+    // Get character positions
+    int char0_x, char0_y, char1_x, char1_y;
+    character_get_position(0, &char0_x, &char0_y);
+    character_get_position(1, &char1_x, &char1_y);
+
+    // Distance threshold for redraw (in world coords)
+    const int nearby_dist = 80;
+
+    bool any_redraw = false;
+
+    for (int i = 0; i < building_count; i++)
+    {
+        building_bbox_t *b = &building_boxes[i];
+
+        // Check if either car is nearby this building
+        int dx0 = char0_x - b->world_x;
+        int dy0 = char0_y - b->world_y;
+        int dx1 = char1_x - b->world_x;
+        int dy1 = char1_y - b->world_y;
+
+        if (dx0 < 0)
+            dx0 = -dx0;
+        if (dy0 < 0)
+            dy0 = -dy0;
+        if (dx1 < 0)
+            dx1 = -dx1;
+        if (dy1 < 0)
+            dy1 = -dy1;
+
+        bool car_nearby = (dx0 < nearby_dist && dy0 < nearby_dist) ||
+                          (dx1 < nearby_dist && dy1 < nearby_dist);
+
+        if (!car_nearby)
+            continue;
+
+        // Set mode once when we find first building to redraw
+        if (!any_redraw)
+        {
+            rdpq_set_mode_standard();
+            rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY);
+            any_redraw = true;
+        }
+
+        sprite_t *tile = building_sprite;
+
+        int screen_x = b->world_x - half_w - cam_x;
+        int screen_y = b->world_y - half_h - cam_y - (tile->height - spr_h);
+
+        // Frustum cull
+        if (screen_x < -tile->width || screen_x > view_width ||
+            screen_y < -tile->height || screen_y > screen_h)
+            continue;
+
+        // Only draw the top half of the building
+        int clip_height = tile->height / 2;
+        int clip_bottom = screen_y + clip_height;
+        if (clip_bottom < 0)
+            clip_bottom = 0;
+        if (clip_bottom > screen_h)
+            clip_bottom = screen_h;
+        rdpq_set_scissor(0, 0, view_width, clip_bottom);
+        rdpq_sprite_blit(tile, screen_x, screen_y, NULL);
+    }
+
+    // Reset scissor if we drew anything
+    if (any_redraw)
+        rdpq_set_scissor(0, 0, view_width, screen_h);
 }
 
-
-// game_init: Load sprites and initialize game state.
+/**
+ * @brief game_init: Load sprites and initialize game state.
+ */
 void game_init(void)
 {
     rdpq_font_t *font_debug = rdpq_font_load_builtin(FONT_BUILTIN_DEBUG_MONO);
     rdpq_text_register_font(1, font_debug);
 
     base_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_base.sprite");
-    wall_bottom_left = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall_bottom_left.sprite");
-    wall_bottom_right = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall_bottom_right.sprite");
-    wall_top_left = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall_top_left.sprite");
-    wall_top_right = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall_top_right.sprite");
+    building_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_two.sprite");
 
     tile_sprites[TILE_NONE] = NULL;
     tile_sprites[TILE_BASE] = base_tile;
-    tile_sprites[TILE_WALL_BOTTOM_LEFT] = wall_bottom_left;
-    tile_sprites[TILE_WALL_BOTTOM_RIGHT] = wall_bottom_right;
-    tile_sprites[TILE_WALL_TOP_LEFT] = wall_top_left;
-    tile_sprites[TILE_WALL_TOP_RIGHT] = wall_top_right;
+    tile_sprites[TILE_BUILDING] = building_sprite;
 
     spr_w = base_tile->width;
     spr_h = base_tile->height;
@@ -209,60 +413,221 @@ void game_init(void)
     int base_x = map_origin_x + (center_x - center_y) * half_w + half_w;
     int base_y = map_origin_y + (center_x + center_y) * half_h + half_h;
 
-    character_init(base_x, base_y, half_w, half_h, ISO_H / 2);
+    // Compute fixed vertical camera offset to center map on screen
+    int screen_h = display_get_height();
+    cam_y = ((tile_draw_off_y + map_pixel_height) - screen_h) / 2;
+
+    character_init(base_x, base_y, half_w, half_h, ISO_H / 2, cam_y);
+
+    // Build collision boxes for all buildings (T-shape: 2 boxes per building)
+    building_count = 0;
+    for (int y = 0; y < MAP_HEIGHT && building_count < MAX_BUILDINGS; y++)
+    {
+        for (int x = 0; x < MAP_WIDTH && building_count < MAX_BUILDINGS; x++)
+        {
+            if (game_map.tiles[y][x] == TILE_BUILDING)
+            {
+                // Compute world center of this building tile
+                int world_x = map_origin_x + (x - y) * half_w + half_w;
+                int world_y = map_origin_y + (x + y) * half_h + half_h;
+
+                building_boxes[building_count].world_x = world_x;
+                building_boxes[building_count].world_y = world_y;
+                building_boxes[building_count].grid_x = x;
+                building_boxes[building_count].grid_y = y;
+
+                // Box 1: Top bar of the T (wide, spans building width)
+                building_boxes[building_count].box1_off_x = 0;
+                building_boxes[building_count].box1_off_y = -4;
+                building_boxes[building_count].box1_half_w = 24;
+                building_boxes[building_count].box1_half_h = 8;
+
+                // Box 2: Bottom stem of the T (narrow, shorter)
+                building_boxes[building_count].box2_off_x = 0;
+                building_boxes[building_count].box2_off_y = 10;
+                building_boxes[building_count].box2_half_w = 10;
+                building_boxes[building_count].box2_half_h = 4;
+
+                building_count++;
+            }
+        }
+    }
 }
 
-// game_update: Update movement, facing, and camera.
+/**
+ * @brief clamp_camera_x: Clamp horizontal camera position to map bounds.
+ */
+static int clamp_camera_x(int cam_x, int view_width)
+{
+    if (cam_x < 0)
+        cam_x = 0;
+    if (cam_x > map_pixel_width - view_width)
+        cam_x = map_pixel_width - view_width;
+    return cam_x;
+}
+
+/**
+ * @brief game_update: Update movement, facing, and camera.
+ */
 void game_update(control_t keys)
 {
     const int screen_w = display_get_width();
-    const int screen_h = display_get_height();
+
+    // Toggle debug overlay with L button
+    if (keys.L)
+        debug_enabled = !debug_enabled;
 
     character_update(keys, is_blocked_position);
 
-    cam_x = (map_pixel_width - screen_w) / 2;
-    cam_y = ((tile_draw_off_y + map_pixel_height) - screen_h) / 2;
-}
-
-// game_draw: Render the scene and debug overlay.
-void game_draw(display_context_t disp)
-{
-    rdpq_attach_clear(disp, NULL);
-    rdpq_draw_filled_fullscreen(tile_bg);
-    draw_map(&game_map);
-    character_draw(cam_x, cam_y);
-
-    int screen_w = display_get_width();
-    int screen_h = display_get_height();
-    int player_x = 0;
-    int player_y = 0;
-    int active_player = character_get_active_player();
-
-    character_get_position(active_player, &player_x, &player_y);
-
-    int tile_x = -1;
-    int tile_y = -1;
-
-    if (!world_to_grid(player_x, player_y, &tile_x, &tile_y))
-    {
-        tile_x = -1;
-        tile_y = -1;
-    }
-
-    int p1_x = 0;
-    int p1_y = 0;
-    int p2_x = 0;
-    int p2_y = 0;
-
+    // Get both player positions
+    int p1_x = 0, p1_y = 0;
+    int p2_x = 0, p2_y = 0;
     character_get_position(0, &p1_x, &p1_y);
     character_get_position(1, &p2_x, &p2_y);
 
-    rdpq_text_printf(NULL, 1, 10, 10, "SCREEN W: %d, SCREEN H: %d", screen_w, screen_h);
-    rdpq_text_printf(NULL, 1, 10, 30, "CAM X: %d, CAM Y: %d", cam_x, cam_y);
-    rdpq_text_printf(NULL, 1, 10, 50, "PLAYER %d X: %d, Y: %d", active_player + 1, player_x, player_y);
-    rdpq_text_printf(NULL, 1, 10, 70, "P1 X: %d, Y: %d", p1_x, p1_y);
-    rdpq_text_printf(NULL, 1, 10, 90, "P2 X: %d, Y: %d", p2_x, p2_y);
-    rdpq_text_printf(NULL, 1, 10, 110, "TILE X: %d, TILE Y: %d", tile_x, tile_y);
+    // Calculate horizontal distance between players
+    int dist_x = p1_x > p2_x ? p1_x - p2_x : p2_x - p1_x;
 
-    rdpq_detach();
+    // Split threshold: when a player would be past the center of their half-screen
+    // In single mode, each player is dist_x/2 from camera center
+    // Split when dist_x/2 > screen_w/4, i.e. dist_x > screen_w/2
+    int split_threshold = screen_w / 2;
+    int merge_threshold = split_threshold - SPLIT_HYSTERESIS;
+
+    // Determine split-screen mode with hysteresis
+    if (split_screen_active)
+    {
+        // Exit split mode when players can fit on screen together
+        if (dist_x < merge_threshold)
+            split_screen_active = false;
+    }
+    else
+    {
+        // Enter split mode when players are too far apart to fit
+        if (dist_x > split_threshold)
+            split_screen_active = true;
+    }
+
+    if (split_screen_active)
+    {
+        // Split mode: each player has their own camera (half screen width)
+        int half_w = screen_w / 2;
+
+        // Determine which player is on the left based on world position
+        int left_x, right_x;
+        if (p1_x <= p2_x)
+        {
+            left_player = 0;
+            left_x = p1_x;
+            right_x = p2_x;
+        }
+        else
+        {
+            left_player = 1;
+            left_x = p2_x;
+            right_x = p1_x;
+        }
+
+        // Left half camera - center left player
+        cam_x_left = left_x - half_w / 2;
+        cam_x_left = clamp_camera_x(cam_x_left, half_w);
+
+        // Right half camera - center right player
+        cam_x_right = right_x - half_w / 2;
+        cam_x_right = clamp_camera_x(cam_x_right, half_w);
+    }
+    else
+    {
+        // Single mode: camera centered between both players
+        int center_x = (p1_x + p2_x) / 2;
+        cam_x = center_x - screen_w / 2;
+        cam_x = clamp_camera_x(cam_x, screen_w);
+    }
+}
+
+/**
+ * @brief game_draw: Render the scene and debug overlay.
+ */
+void game_draw(display_context_t disp)
+{
+    int screen_w = display_get_width();
+    int screen_h = display_get_height();
+
+    rdpq_attach_clear(disp, NULL);
+
+    if (split_screen_active)
+    {
+        int half_w = screen_w / 2;
+        int divider_x = half_w - DIVIDER_WIDTH / 2;
+        int right_player = 1 - left_player;
+
+        // === Left half: player who is further left in world ===
+        rdpq_set_scissor(0, 0, half_w - DIVIDER_WIDTH / 2, screen_h);
+        rdpq_set_mode_fill(tile_bg);
+        rdpq_fill_rectangle(0, 0, half_w, screen_h);
+        draw_scene_depth_sorted(&game_map, cam_x_left, half_w);
+
+        // === Right half: player who is further right in world ===
+        rdpq_set_scissor(half_w + DIVIDER_WIDTH / 2, 0, screen_w, screen_h);
+        rdpq_set_mode_fill(tile_bg);
+        rdpq_fill_rectangle(half_w, 0, screen_w, screen_h);
+        // Offset camera for right half (screen coords start at half_w)
+        draw_scene_depth_sorted(&game_map, cam_x_right - half_w, screen_w);
+
+        // === Draw divider line ===
+        rdpq_set_scissor(0, 0, screen_w, screen_h);
+        rdpq_set_mode_fill(RGBA32(0, 0, 0, 255));
+        rdpq_fill_rectangle(divider_x, 0, divider_x + DIVIDER_WIDTH, screen_h);
+
+        // Debug info for split mode
+        if (debug_enabled)
+        {
+            int p1_x = 0, p1_y = 0, p2_x = 0, p2_y = 0;
+            int p1_tile_x = -1, p1_tile_y = -1, p2_tile_x = -1, p2_tile_y = -1;
+            character_get_position(0, &p1_x, &p1_y);
+            character_get_position(1, &p2_x, &p2_y);
+            world_to_grid(p1_x, p1_y, &p1_tile_x, &p1_tile_y);
+            world_to_grid(p2_x, p2_y, &p2_tile_x, &p2_tile_y);
+
+            rdpq_text_printf(NULL, 1, 10, 10, "SPLIT MODE");
+            rdpq_text_printf(NULL, 1, 10, 30, "P%d CAM X: %d  TILE: %d,%d", left_player + 1, cam_x_left,
+                             left_player == 0 ? p1_tile_x : p2_tile_x,
+                             left_player == 0 ? p1_tile_y : p2_tile_y);
+            rdpq_text_printf(NULL, 1, half_w + 10, 30, "P%d CAM X: %d  TILE: %d,%d", right_player + 1, cam_x_right,
+                             right_player == 0 ? p1_tile_x : p2_tile_x,
+                             right_player == 0 ? p1_tile_y : p2_tile_y);
+        }
+    }
+    else
+    {
+        // === Single screen mode ===
+        rdpq_set_mode_fill(tile_bg);
+        rdpq_fill_rectangle(0, 0, screen_w, screen_h);
+        draw_scene_depth_sorted(&game_map, cam_x, screen_w);
+
+        // Debug info for single mode
+        if (debug_enabled)
+        {
+            int p1_x = 0, p1_y = 0;
+            int p2_x = 0, p2_y = 0;
+            int p1_tile_x = -1, p1_tile_y = -1;
+            int p2_tile_x = -1, p2_tile_y = -1;
+            character_get_position(0, &p1_x, &p1_y);
+            character_get_position(1, &p2_x, &p2_y);
+            world_to_grid(p1_x, p1_y, &p1_tile_x, &p1_tile_y);
+            world_to_grid(p2_x, p2_y, &p2_tile_x, &p2_tile_y);
+
+            int dist_x = p1_x > p2_x ? p1_x - p2_x : p2_x - p1_x;
+            int split_at = screen_w / 2;
+
+            rdpq_text_printf(NULL, 1, 10, 10, "SINGLE (dist: %d / %d)", dist_x, split_at);
+            rdpq_text_printf(NULL, 1, 10, 30, "P1: %d,%d  TILE: %d,%d", p1_x, p1_y, p1_tile_x, p1_tile_y);
+            rdpq_text_printf(NULL, 1, 10, 50, "P2: %d,%d  TILE: %d,%d", p2_x, p2_y, p2_tile_x, p2_tile_y);
+
+            // Draw collision debug boxes
+            draw_debug_collision(cam_x);
+        }
+    }
+
+    rdpq_detach_show();
 }

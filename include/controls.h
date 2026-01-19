@@ -24,6 +24,7 @@ typedef struct
 {
     bool A;
     bool B;
+    bool L;
     bool start;
     bool c_up;
     bool c_down;

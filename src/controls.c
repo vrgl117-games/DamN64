@@ -10,7 +10,9 @@
 
 #include "controls.h"
 
-// controls_get_keys: Poll controller input and build control state.
+/**
+ * @brief controls_get_keys: Poll controller input and build control state.
+ */
 control_t controls_get_keys()
 {
     control_t keys = {0};
@@ -34,6 +36,8 @@ control_t controls_get_keys()
         keys.A = true;
     if (down.b)
         keys.B = true;
+    if (down.l)
+        keys.L = true;
     if (down.c_up)
         keys.c_up = true;
     if (down.c_down)

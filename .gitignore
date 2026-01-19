@@ -1,7 +1,8 @@
 TBD-64.*
 *.o
 *.sprite
-.vscode/ipch/
+.vscode/
+.clangd
 .DS_Store
 *~
 filesystem/

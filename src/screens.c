@@ -71,7 +71,7 @@ bool screen_intro(display_context_t disp)
     {
         rdpq_attach_clear(disp, NULL);
         rdpq_draw_faded_sprite(intro, 320 - intro->width / 2, 150, alpha);
-        rdpq_detach();
+        rdpq_detach_show();
         sprite_free(intro);
     }
 
@@ -87,6 +87,8 @@ void screen_timer_title()
 // screen_title: Render title screen.
 void screen_title(display_context_t disp)
 {
+    rdpq_attach_clear(disp, NULL);
+    rdpq_detach_show();
 }
 
 // screen_game: Update and render the game screen.
