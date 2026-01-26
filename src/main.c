@@ -54,7 +54,6 @@ int main()
         case game: // main game loop
             screen_game(disp, keys);
         }
-
     }
 
     // cleanup, never called

@@ -558,24 +558,31 @@ void game_draw(display_context_t disp)
     if (split_screen_active)
     {
         int half_w = screen_w / 2;
-        int divider_x = half_w - DIVIDER_WIDTH / 2;
         int right_player = 1 - left_player;
+        int right_view_x = (half_w / 32) * 32;
+        if (right_view_x < DIVIDER_WIDTH)
+            right_view_x = DIVIDER_WIDTH;
+        int left_view_w = right_view_x - DIVIDER_WIDTH;
+        int right_view_w = screen_w - right_view_x;
+        int divider_x = left_view_w;
 
         // === Left half: player who is further left in world ===
-        rdpq_set_scissor(0, 0, half_w - DIVIDER_WIDTH / 2, screen_h);
+        surface_t left_view = surface_make_sub(disp, 0, 0, left_view_w, screen_h);
+        rdpq_attach(&left_view, NULL);
         rdpq_set_mode_fill(tile_bg);
-        rdpq_fill_rectangle(0, 0, half_w, screen_h);
-        draw_scene_depth_sorted(&game_map, cam_x_left, half_w);
+        rdpq_fill_rectangle(0, 0, left_view_w, screen_h);
+        draw_scene_depth_sorted(&game_map, cam_x_left, left_view_w);
+        rdpq_detach();
 
         // === Right half: player who is further right in world ===
-        rdpq_set_scissor(half_w + DIVIDER_WIDTH / 2, 0, screen_w, screen_h);
+        surface_t right_view = surface_make_sub(disp, right_view_x, 0, right_view_w, screen_h);
+        rdpq_attach(&right_view, NULL);
         rdpq_set_mode_fill(tile_bg);
-        rdpq_fill_rectangle(half_w, 0, screen_w, screen_h);
-        // Offset camera for right half (screen coords start at half_w)
-        draw_scene_depth_sorted(&game_map, cam_x_right - half_w, screen_w);
+        rdpq_fill_rectangle(0, 0, right_view_w, screen_h);
+        draw_scene_depth_sorted(&game_map, cam_x_right, right_view_w);
+        rdpq_detach();
 
         // === Draw divider line ===
-        rdpq_set_scissor(0, 0, screen_w, screen_h);
         rdpq_set_mode_fill(RGBA32(0, 0, 0, 255));
         rdpq_fill_rectangle(divider_x, 0, divider_x + DIVIDER_WIDTH, screen_h);
 
@@ -593,7 +600,7 @@ void game_draw(display_context_t disp)
             rdpq_text_printf(NULL, 1, 10, 30, "P%d CAM X: %d  TILE: %d,%d", left_player + 1, cam_x_left,
                              left_player == 0 ? p1_tile_x : p2_tile_x,
                              left_player == 0 ? p1_tile_y : p2_tile_y);
-            rdpq_text_printf(NULL, 1, half_w + 10, 30, "P%d CAM X: %d  TILE: %d,%d", right_player + 1, cam_x_right,
+            rdpq_text_printf(NULL, 1, right_view_x + 10, 30, "P%d CAM X: %d  TILE: %d,%d", right_player + 1, cam_x_right,
                              right_player == 0 ? p1_tile_x : p2_tile_x,
                              right_player == 0 ? p1_tile_y : p2_tile_y);
         }
@@ -623,6 +630,7 @@ void game_draw(display_context_t disp)
             rdpq_text_printf(NULL, 1, 10, 10, "SINGLE (dist: %d / %d)", dist_x, split_at);
             rdpq_text_printf(NULL, 1, 10, 30, "P1: %d,%d  TILE: %d,%d", p1_x, p1_y, p1_tile_x, p1_tile_y);
             rdpq_text_printf(NULL, 1, 10, 50, "P2: %d,%d  TILE: %d,%d", p2_x, p2_y, p2_tile_x, p2_tile_y);
+            rdpq_text_printf(NULL, 1, 10, 70, "cam_y: %d", cam_y);
 
             // Draw collision debug boxes
             draw_debug_collision(cam_x);
