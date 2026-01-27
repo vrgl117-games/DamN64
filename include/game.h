@@ -34,5 +34,6 @@ extern map_t game_map;
 void game_init(void);
 void game_update(control_t keys);
 void game_draw(display_context_t disp);
+void game_draw_title_background(int screen_w, int screen_h);
 
 #endif //__GAME_H__

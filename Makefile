@@ -4,7 +4,7 @@ ARES_BIN := /Applications/ares.app/Contents/MacOS/ares
 
 BUILD_DIR := build
 SOURCE_DIR := src
-ROM_NAME := TBD-64
+ROM_NAME := DamN64
 BUILD_TYPE ?= debug
 
 N64_MK_PATH := $(N64_INST)/include/n64.mk
@@ -49,13 +49,24 @@ filesystem/gfx/sprites/%.sprite: resources/gfx/sprites/%.png
 	@$(N64_MKSPRITE) -f RGBA16 -o $(dir $@) $<
 
 # sfx #
-MP3S := $(wildcard resources/sfx/bgms/*.mp3)
-BGMS := $(subst .mp3,.wav64,$(subst resources/,filesystem/,$(MP3S)))
-filesystem/sfx/bgms/%.wav64: resources/sfx/bgms/%.mp3
+WAVS := $(wildcard resources/sfx/bgms/*.wav)
+BGMS := $(subst .wav,.wav64,$(subst resources/,filesystem/,$(WAVS)))
+filesystem/sfx/bgms/%.wav64: resources/sfx/bgms/%.wav
 	@mkdir -p $(dir $@)
 	@echo "    [AUDIOCONV] $@"
-	@$(N64_AUDIOCONV) --wav-compress 3 -o $(dir $@) $<
+	@$(N64_AUDIOCONV) --wav-mono --wav-loop true --wav-compress 0 -o $(dir $@) $<
 
+# font #
+FONTS := filesystem/gfx/fonts/Kenney_Pixel_Square.font64 \
+	filesystem/gfx/fonts/Kenney_Pixel.font64
+filesystem/gfx/fonts/Kenney_Pixel_Square.font64: resources/gfx/fonts/Kenney_Pixel_Square.ttf
+	@mkdir -p $(dir $@)
+	@echo "    [MKFONT] $@"
+	@$(N64_MKFONT) -s 42 --ellipsis 30,0 --range 0x20-0x7E -o $(dir $@) $<
+filesystem/gfx/fonts/Kenney_Pixel.font64: resources/gfx/fonts/Kenney_Pixel.ttf
+	@mkdir -p $(dir $@)
+	@echo "    [MKFONT] $@"
+	@$(N64_MKFONT) -s 32 --ellipsis 30,0 --range 0x20-0x7E -o $(dir $@) $<
 # code #
 SRCS := $(wildcard $(SOURCE_DIR)/*.c)
 OBJS := $(SRCS:$(SOURCE_DIR)/%.c=$(BUILD_DIR)/%.o)
@@ -63,14 +74,14 @@ DEPS := $(OBJS:.o=.d)
 
 -include $(DEPS)
 
-$(ROM_NAME).z64: N64_ROM_TITLE = "TBD-64"
+$(ROM_NAME).z64: N64_ROM_TITLE = "DamN64"
 
 # Dependencies - let n64.mk handle the rules
 $(BUILD_DIR)/$(ROM_NAME).elf: $(OBJS)
 $(ROM_NAME).z64: $(BUILD_DIR)/$(ROM_NAME).dfs
 
 # dfs #
-$(BUILD_DIR)/$(ROM_NAME).dfs: $(SPRITES) $(BGMS)
+$(BUILD_DIR)/$(ROM_NAME).dfs: $(SPRITES) $(BGMS) $(FONTS)
 	@mkdir -p ./filesystem/
 	@echo `git rev-parse HEAD` > ./filesystem/hash
 	@echo "    [DFS] $@"
@@ -83,9 +94,10 @@ resetup:	##  Force recreate the dev environment (docker image).
 	@echo "Rebuilding dev environment in docker..."
 	@docker build --platform linux/amd64 -t build --no-cache  - < Dockerfile
 
-ares:		##    Start rom in Ares emulator.
+ares: build ##    Start rom in Ares emulator.
 	@echo "Starting ares..."
-	$(ARES_BIN) $(ROM_NAME).z64
+	@mkdir -p .ares/saves
+	$(ARES_BIN) --setting "Paths/Saves=$(CURDIR)/.ares/saves" $(ROM_NAME).z64
 
 sd:			##    Flash rom to N64 EverDrive SD card.
 	cp $(ROM_NAME).z64 /Volumes/N64/	

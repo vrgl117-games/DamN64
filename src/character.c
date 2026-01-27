@@ -9,6 +9,7 @@
 #include "rdpq.h"
 #include "sprite.h"
 
+#define CHARACTER_COUNT 2
 #define CAR_DIR_COUNT 8
 #define CAR_DIR_N 0
 #define CAR_DIR_NE 1
@@ -18,41 +19,40 @@
 #define CAR_DIR_SW 5
 #define CAR_DIR_W 6
 #define CAR_DIR_NW 7
+#define TITLE_ISO_H_HALF 16
 
-static sprite_t *police_sprites[CAR_DIR_COUNT] = {0};
-static sprite_t *ambulance_sprites[CAR_DIR_COUNT] = {0};
+static sprite_t *garbage_yellow_sprites[CAR_DIR_COUNT] = {0};
+static sprite_t *garbage_red_sprites[CAR_DIR_COUNT] = {0};
 static int character_x[CHARACTER_COUNT] = {0};
 static int character_y[CHARACTER_COUNT] = {0};
 static int active_player = 0;
 static int char_facing[CHARACTER_COUNT] = {0};
-static int iso_half_h = 0;
 static int stored_cam_y = 0;
 
 /**
  * @brief character_init: Load vehicle sprites and initialize character state.
  */
-void character_init(int base_x, int base_y, int offset_x, int offset_y, int iso_half_h_value, int cam_y)
+void character_init(int base_x, int base_y, int offset_x, int offset_y, int cam_y)
 {
-    police_sprites[CAR_DIR_N] = sprite_load("rom:/gfx/sprites/isometric-vehicles/police_N.sprite");
-    police_sprites[CAR_DIR_NE] = sprite_load("rom:/gfx/sprites/isometric-vehicles/police_NE.sprite");
-    police_sprites[CAR_DIR_E] = sprite_load("rom:/gfx/sprites/isometric-vehicles/police_E.sprite");
-    police_sprites[CAR_DIR_SE] = sprite_load("rom:/gfx/sprites/isometric-vehicles/police_SE.sprite");
-    police_sprites[CAR_DIR_S] = sprite_load("rom:/gfx/sprites/isometric-vehicles/police_S.sprite");
-    police_sprites[CAR_DIR_SW] = sprite_load("rom:/gfx/sprites/isometric-vehicles/police_SW.sprite");
-    police_sprites[CAR_DIR_W] = sprite_load("rom:/gfx/sprites/isometric-vehicles/police_W.sprite");
-    police_sprites[CAR_DIR_NW] = sprite_load("rom:/gfx/sprites/isometric-vehicles/police_NW.sprite");
+    garbage_yellow_sprites[CAR_DIR_N] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_yellow_N.sprite");
+    garbage_yellow_sprites[CAR_DIR_NE] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_yellow_NE.sprite");
+    garbage_yellow_sprites[CAR_DIR_E] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_yellow_E.sprite");
+    garbage_yellow_sprites[CAR_DIR_SE] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_yellow_SE.sprite");
+    garbage_yellow_sprites[CAR_DIR_S] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_yellow_S.sprite");
+    garbage_yellow_sprites[CAR_DIR_SW] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_yellow_SW.sprite");
+    garbage_yellow_sprites[CAR_DIR_W] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_yellow_W.sprite");
+    garbage_yellow_sprites[CAR_DIR_NW] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_yellow_NW.sprite");
 
-    ambulance_sprites[CAR_DIR_N] = sprite_load("rom:/gfx/sprites/isometric-vehicles/ambulance_N.sprite");
-    ambulance_sprites[CAR_DIR_NE] = sprite_load("rom:/gfx/sprites/isometric-vehicles/ambulance_NE.sprite");
-    ambulance_sprites[CAR_DIR_E] = sprite_load("rom:/gfx/sprites/isometric-vehicles/ambulance_E.sprite");
-    ambulance_sprites[CAR_DIR_SE] = sprite_load("rom:/gfx/sprites/isometric-vehicles/ambulance_SE.sprite");
-    ambulance_sprites[CAR_DIR_S] = sprite_load("rom:/gfx/sprites/isometric-vehicles/ambulance_S.sprite");
-    ambulance_sprites[CAR_DIR_SW] = sprite_load("rom:/gfx/sprites/isometric-vehicles/ambulance_SW.sprite");
-    ambulance_sprites[CAR_DIR_W] = sprite_load("rom:/gfx/sprites/isometric-vehicles/ambulance_W.sprite");
-    ambulance_sprites[CAR_DIR_NW] = sprite_load("rom:/gfx/sprites/isometric-vehicles/ambulance_NW.sprite");
+    garbage_red_sprites[CAR_DIR_N] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_N.sprite");
+    garbage_red_sprites[CAR_DIR_NE] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_NE.sprite");
+    garbage_red_sprites[CAR_DIR_E] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_E.sprite");
+    garbage_red_sprites[CAR_DIR_SE] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_SE.sprite");
+    garbage_red_sprites[CAR_DIR_S] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_S.sprite");
+    garbage_red_sprites[CAR_DIR_SW] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_SW.sprite");
+    garbage_red_sprites[CAR_DIR_W] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_W.sprite");
+    garbage_red_sprites[CAR_DIR_NW] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_NW.sprite");
 
     active_player = 0;
-    iso_half_h = iso_half_h_value;
     stored_cam_y = cam_y;
 
     for (int i = 0; i < CHARACTER_COUNT; i++)
@@ -155,14 +155,12 @@ void character_draw_single(int index, int cam_x)
     if (dir < 0 || dir >= CAR_DIR_COUNT)
         dir = CAR_DIR_S;
 
-    sprite_t *car = (index == 0) ? police_sprites[dir] : ambulance_sprites[dir];
+    sprite_t *car = (index == 0) ? garbage_yellow_sprites[dir] : garbage_red_sprites[dir];
     if (!car)
         return;
 
-    rdpq_set_mode_copy(true);
-
     int screen_x = character_x[index] - cam_x - (car->width / 2);
-    int screen_y = character_y[index] - stored_cam_y - car->height + iso_half_h;
+    int screen_y = character_y[index] - stored_cam_y - car->height + TITLE_ISO_H_HALF;
 
     rdpq_sprite_blit(car, screen_x, screen_y, NULL);
 }
@@ -191,12 +189,12 @@ void character_draw(int cam_x)
         if (dir < 0 || dir >= CAR_DIR_COUNT)
             dir = CAR_DIR_S;
 
-        sprite_t *car = (index == 0) ? police_sprites[dir] : ambulance_sprites[dir];
+        sprite_t *car = (index == 0) ? garbage_yellow_sprites[dir] : garbage_red_sprites[dir];
         if (!car)
             continue;
 
         int screen_x = character_x[index] - cam_x - (car->width / 2);
-        int screen_y = character_y[index] - stored_cam_y - car->height + iso_half_h;
+        int screen_y = character_y[index] - stored_cam_y - car->height + TITLE_ISO_H_HALF;
 
         rdpq_sprite_blit(car, screen_x, screen_y, NULL);
     }
@@ -222,4 +220,20 @@ void character_get_position(int index, int *x, int *y)
 int character_get_active_player(void)
 {
     return active_player;
+}
+
+/**
+ * @brief character_get_vehicle_sprite: Fetch vehicle sprite for color and direction.
+ */
+sprite_t *character_get_vehicle_sprite(int color_index, int dir)
+{
+    if (dir < 0 || dir >= CAR_DIR_COUNT)
+        dir = CAR_DIR_S;
+
+    if (color_index == 0)
+        return garbage_yellow_sprites[dir];
+    if (color_index == 1)
+        return garbage_red_sprites[dir];
+
+    return NULL;
 }

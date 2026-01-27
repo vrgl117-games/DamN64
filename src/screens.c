@@ -6,10 +6,14 @@
  * of the Apache license. See the LICENSE file for details.
  */
 
-#include "rdpq.h"
-#include "game.h"
 #include "screens.h"
+
+#include "bgm.h"
+#include "font.h"
+#include "game.h"
+#include "rdpq.h"
 #include "sprite.h"
+#include "title.h"
 
 static volatile int tick = 0;
 
@@ -87,7 +91,23 @@ void screen_timer_title()
 // screen_title: Render title screen.
 void screen_title(display_context_t disp)
 {
-    rdpq_attach_clear(disp, NULL);
+    const char *title = "DamN64";
+    const char *prompt = "Press Any Button";
+    int screen_w = display_get_width();
+    int screen_h = display_get_height();
+    int title_y = (screen_h / 2) - 120;
+    int prompt_y = title_y + 260;
+
+    title_update(screen_w);
+
+    rdpq_attach(disp, NULL);
+    game_draw_title_background(screen_w, screen_h);
+    title_draw(screen_w, screen_h);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL_SQUARE, 0, title_y, title);
+    if (tick % 30 < 15)
+        rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                        FONT_PIXEL, 0, prompt_y, prompt);
     rdpq_detach_show();
 }
 

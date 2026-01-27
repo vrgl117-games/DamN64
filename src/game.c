@@ -375,13 +375,52 @@ static void draw_scene_depth_sorted(map_t *map, int cam_x, int view_width)
 }
 
 /**
+ * @brief game_draw_title_background: Draw a single tiled band.
+ */
+void game_draw_title_background(int screen_w, int screen_h)
+{
+    rdpq_clear(tile_bg);
+
+    if (!base_tile)
+        return;
+
+    int half_w = ISO_W / 2;
+    int half_h = ISO_H / 2;
+
+    int origin_x = (screen_w / 2) - half_w;
+    int origin_y = -base_tile->height * 2;
+
+    int max_tiles = (screen_w / half_w) + 2;
+
+    // Convert screen center to iso sum
+    int center_sum = ((screen_h / 2) - origin_y) / half_h;
+    int band_half = 2; // 5 tiles high
+
+    rdpq_set_mode_copy(true);
+
+    for (int s = center_sum - band_half; s <= center_sum + band_half; s++)
+    {
+        // s == x + y
+        for (int x = -max_tiles; x <= max_tiles; x++)
+        {
+            int y = s - x;
+
+            int screen_x = origin_x + (x - y) * half_w;
+            int screen_y = origin_y + s * half_h;
+
+            if (screen_x < -base_tile->width || screen_x > screen_w)
+                continue;
+
+            rdpq_sprite_blit(base_tile, screen_x, screen_y, NULL);
+        }
+    }
+}
+
+/**
  * @brief game_init: Load sprites and initialize game state.
  */
 void game_init(void)
 {
-    rdpq_font_t *font_debug = rdpq_font_load_builtin(FONT_BUILTIN_DEBUG_MONO);
-    rdpq_text_register_font(1, font_debug);
-
     base_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_base.sprite");
     building_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_two.sprite");
 
@@ -417,7 +456,7 @@ void game_init(void)
     int screen_h = display_get_height();
     cam_y = ((tile_draw_off_y + map_pixel_height) - screen_h) / 2;
 
-    character_init(base_x, base_y, half_w, half_h, ISO_H / 2, cam_y);
+    character_init(base_x, base_y, half_w, half_h, cam_y);
 
     // Build collision boxes for all buildings (T-shape: 2 boxes per building)
     building_count = 0;
@@ -552,50 +591,68 @@ void game_draw(display_context_t disp)
 {
     int screen_w = display_get_width();
     int screen_h = display_get_height();
-
-    rdpq_attach_clear(disp, NULL);
+    int right_player = 1 - left_player;
+    int right_view_x = 0;
+    int left_view_w = 0;
+    int right_view_w = 0;
+    int divider_x = 0;
+    int half_w = 0;
+    int p1_x = 0, p1_y = 0, p2_x = 0, p2_y = 0;
+    int p1_tile_x = -1, p1_tile_y = -1, p2_tile_x = -1, p2_tile_y = -1;
+    int dist_x = 0;
+    int split_at = 0;
 
     if (split_screen_active)
     {
-        int half_w = screen_w / 2;
-        int right_player = 1 - left_player;
-        int right_view_x = (half_w / 32) * 32;
+        half_w = screen_w / 2;
+        right_view_x = (half_w / 32) * 32;
         if (right_view_x < DIVIDER_WIDTH)
             right_view_x = DIVIDER_WIDTH;
-        int left_view_w = right_view_x - DIVIDER_WIDTH;
-        int right_view_w = screen_w - right_view_x;
-        int divider_x = left_view_w;
+        left_view_w = right_view_x - DIVIDER_WIDTH;
+        right_view_w = screen_w - right_view_x;
+        divider_x = left_view_w;
+    }
+
+    if (debug_enabled)
+    {
+        character_get_position(0, &p1_x, &p1_y);
+        character_get_position(1, &p2_x, &p2_y);
+        world_to_grid(p1_x, p1_y, &p1_tile_x, &p1_tile_y);
+        world_to_grid(p2_x, p2_y, &p2_tile_x, &p2_tile_y);
+
+        if (!split_screen_active)
+        {
+            dist_x = p1_x > p2_x ? p1_x - p2_x : p2_x - p1_x;
+            split_at = screen_w / 2;
+        }
+    }
+
+    if (split_screen_active)
+    {
+        rdpq_attach(disp, NULL);
+        rdpq_clear(tile_bg);
+        rdpq_detach();
 
         // === Left half: player who is further left in world ===
         surface_t left_view = surface_make_sub(disp, 0, 0, left_view_w, screen_h);
         rdpq_attach(&left_view, NULL);
-        rdpq_set_mode_fill(tile_bg);
-        rdpq_fill_rectangle(0, 0, left_view_w, screen_h);
         draw_scene_depth_sorted(&game_map, cam_x_left, left_view_w);
         rdpq_detach();
 
         // === Right half: player who is further right in world ===
         surface_t right_view = surface_make_sub(disp, right_view_x, 0, right_view_w, screen_h);
         rdpq_attach(&right_view, NULL);
-        rdpq_set_mode_fill(tile_bg);
-        rdpq_fill_rectangle(0, 0, right_view_w, screen_h);
         draw_scene_depth_sorted(&game_map, cam_x_right, right_view_w);
         rdpq_detach();
 
         // === Draw divider line ===
+        rdpq_attach(disp, NULL);
         rdpq_set_mode_fill(RGBA32(0, 0, 0, 255));
         rdpq_fill_rectangle(divider_x, 0, divider_x + DIVIDER_WIDTH, screen_h);
 
         // Debug info for split mode
         if (debug_enabled)
         {
-            int p1_x = 0, p1_y = 0, p2_x = 0, p2_y = 0;
-            int p1_tile_x = -1, p1_tile_y = -1, p2_tile_x = -1, p2_tile_y = -1;
-            character_get_position(0, &p1_x, &p1_y);
-            character_get_position(1, &p2_x, &p2_y);
-            world_to_grid(p1_x, p1_y, &p1_tile_x, &p1_tile_y);
-            world_to_grid(p2_x, p2_y, &p2_tile_x, &p2_tile_y);
-
             rdpq_text_printf(NULL, 1, 10, 10, "SPLIT MODE");
             rdpq_text_printf(NULL, 1, 10, 30, "P%d CAM X: %d  TILE: %d,%d", left_player + 1, cam_x_left,
                              left_player == 0 ? p1_tile_x : p2_tile_x,
@@ -608,25 +665,13 @@ void game_draw(display_context_t disp)
     else
     {
         // === Single screen mode ===
-        rdpq_set_mode_fill(tile_bg);
-        rdpq_fill_rectangle(0, 0, screen_w, screen_h);
+        rdpq_attach(disp, NULL);
+        rdpq_clear(tile_bg);
         draw_scene_depth_sorted(&game_map, cam_x, screen_w);
 
         // Debug info for single mode
         if (debug_enabled)
         {
-            int p1_x = 0, p1_y = 0;
-            int p2_x = 0, p2_y = 0;
-            int p1_tile_x = -1, p1_tile_y = -1;
-            int p2_tile_x = -1, p2_tile_y = -1;
-            character_get_position(0, &p1_x, &p1_y);
-            character_get_position(1, &p2_x, &p2_y);
-            world_to_grid(p1_x, p1_y, &p1_tile_x, &p1_tile_y);
-            world_to_grid(p2_x, p2_y, &p2_tile_x, &p2_tile_y);
-
-            int dist_x = p1_x > p2_x ? p1_x - p2_x : p2_x - p1_x;
-            int split_at = screen_w / 2;
-
             rdpq_text_printf(NULL, 1, 10, 10, "SINGLE (dist: %d / %d)", dist_x, split_at);
             rdpq_text_printf(NULL, 1, 10, 30, "P1: %d,%d  TILE: %d,%d", p1_x, p1_y, p1_tile_x, p1_tile_y);
             rdpq_text_printf(NULL, 1, 10, 50, "P2: %d,%d  TILE: %d,%d", p2_x, p2_y, p2_tile_x, p2_tile_y);

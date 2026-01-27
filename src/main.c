@@ -7,12 +7,14 @@
  */
 
 #include <stdlib.h>
+
+#include "bgm.h"
 #include "controls.h"
 #include "font.h"
 #include "game.h"
 #include "screens.h"
 
-screen_t screen = game;
+screen_t screen = title;
 
 // main: Initialize systems and run main loop.
 int main()
@@ -24,14 +26,19 @@ int main()
     debug_init(DEBUG_FEATURE_LOG_ISVIEWER);
     rdpq_debug_start();
 #endif
+    bgm_init();
     joypad_init();
     timer_init();
+    font_init();
 
     srand(timer_ticks() & 0x7FFFFFFF);
 
     new_timer(TIMER_TICKS(50000), TF_CONTINUOUS, screen_timer_title);
     surface_t *disp = NULL;
     game_init();
+
+    if (screen != intro) // auto start bgm if skipping intro
+        bgm_start();
 
     while (true)
     {
@@ -46,14 +53,21 @@ int main()
         {
         case intro: // n64 logo and vrgl117 logo.
             if (screen_intro(disp))
+            {
                 screen = title;
+                bgm_start();
+            }
             break;
         case title: // press start.
             screen_title(disp);
+            if (keys.start || keys.A || keys.B)
+                screen = game;
             break;
         case game: // main game loop
             screen_game(disp, keys);
         }
+
+        bgm_update();
     }
 
     // cleanup, never called

@@ -32,10 +32,10 @@ make help           # Show all available make targets
 
 ### Build Output
 
-- ROM file: `TBD-64.z64`
-- ELF file: `build/TBD-64.elf`
-- Map file: `build/TBD-64.map`
-- Filesystem: `TBD-64.dfs`
+- ROM file: `DamN64.z64`
+- ELF file: `build/DamN64.elf`
+- Map file: `build/DamN64.map`
+- Filesystem: `DamN64.dfs`
 
 ### Notes
 
@@ -43,7 +43,8 @@ make help           # Show all available make targets
 - Build requires Docker for cross-compilation to MIPS
 - LSP should work via `.clangd` config (points to local libdragon clone)
 - Agents may verify builds with `make build`
-- Agents must not launch `make ares`; human handles emulator testing
+- Agents may launch `make ares` when using the `n64-player` skill
+- Agents may ask the user to test fixes using the `n64-player` skill
 
 ## Project Structure
 

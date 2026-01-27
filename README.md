@@ -1,12 +1,13 @@
-TBD-64
+DamN64
 ======
 
-Isometric two-vehicle N64 sandbox built for n64brew jam.
+Damn! The dam broke and needs to be repaired before the city floods!
+Isometric two-vehicle N64 sandbox built for n64brew jam #6.
 
 About
 -----
 
-TBD-64 is a libdragon-powered Nintendo 64 game with an isometric map and two driveable vehicles. It supports a horizontal split-screen view when players move far enough apart, and merges back to a single view when they are close.
+DamN64 is a libdragon-powered Nintendo 64 game with an isometric map and two driveable vehicles. It supports a horizontal split-screen view when players move far enough apart, and merges back to a single view when they are close.
 
 Controls
 --------
@@ -49,5 +50,5 @@ build/       Build artifacts (gitignored)
 Notes
 -----
 
-- ROM output: `TBD-64.z64`
+- ROM output: `DamN64.z64`
 - Build artifacts and generated assets are gitignored.
