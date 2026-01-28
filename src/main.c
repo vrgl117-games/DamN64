@@ -44,13 +44,13 @@ int main()
     while (true)
     {
         // get the keys pressed.
-        control_t keys = controls_get_keys();
+        control_t **keys = controls_get_keys();
 
         // wait for the screen to be availalble.
         while (!(disp = display_try_get()))
             ;
 
-        switch (screen) // state machine for the screens. intro -> title -> game.
+        switch (screen) // state machine for the screens. intro -> title -> story -> game.
         {
         case intro: // n64 logo and vrgl117 logo.
             if (screen_intro(disp))
@@ -61,7 +61,12 @@ int main()
             break;
         case title: // press start.
             screen_title(disp);
-            if (keys.start || keys.A || keys.B)
+            if (keys[0]->start || keys[0]->A || keys[0]->B)
+                screen = story;
+            break;
+        case story: // story screen.
+            screen_story(disp, keys);
+            if (keys[0]->start || keys[0]->A || keys[0]->B)
                 screen = game;
             break;
         case game: // main game loop

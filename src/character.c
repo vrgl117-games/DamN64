@@ -64,28 +64,30 @@ void character_init(int base_x, int base_y, int offset_x, int offset_y, int cam_
 }
 
 /**
- * @brief character_update: Update movement, facing, and active character.
+ * @brief character_move_player: Update movement and facing for a character.
  */
-void character_update(control_t keys, character_block_fn is_blocked)
+static void character_move_player(int index, const control_t *keys, character_block_fn is_blocked)
 {
-    if (keys.c_up || keys.c_down)
-        active_player = (active_player + 1) % CHARACTER_COUNT;
+    if (!keys)
+        return;
+    if (index < 0 || index >= CHARACTER_COUNT)
+        return;
 
     int dir_x = 0;
     int dir_y = 0;
 
-    if (keys.direction & d_left)
+    if (keys->direction & d_left)
         dir_x -= 1;
-    if (keys.direction & d_right)
+    if (keys->direction & d_right)
         dir_x += 1;
-    if (keys.direction & d_up)
+    if (keys->direction & d_up)
         dir_y -= 1;
-    if (keys.direction & d_down)
+    if (keys->direction & d_down)
         dir_y += 1;
 
-    int *player_x = &character_x[active_player];
-    int *player_y = &character_y[active_player];
-    int *player_facing = &char_facing[active_player];
+    int *player_x = &character_x[index];
+    int *player_y = &character_y[index];
+    int *player_facing = &char_facing[index];
 
     if (dir_x || dir_y)
     {
@@ -100,7 +102,7 @@ void character_update(control_t keys, character_block_fn is_blocked)
         // Check collision at center point
         // AABB collision with buildings is handled in is_blocked_position
         bool blocked = false;
-        
+
         if (is_blocked)
         {
             blocked = is_blocked(next_x, next_y);
@@ -141,6 +143,31 @@ void character_update(control_t keys, character_block_fn is_blocked)
                 *player_facing = CAR_DIR_E;
         }
     }
+}
+
+/**
+ * @brief character_update: Update movement, facing, and active character(s).
+ */
+void character_update(const control_t *keys[2], character_block_fn is_blocked)
+{
+    const control_t *p1 = keys[0];
+    const control_t *p2 = keys[1];
+    bool has_p2 = (p2 != NULL);
+
+    if (has_p2)
+    {
+        active_player = 0;
+        character_move_player(0, p1, is_blocked);
+        character_move_player(1, p2, is_blocked);
+        return;
+    }
+
+    const control_t *single = p1;
+
+    if (single->z)
+        active_player = (active_player + 1) % CHARACTER_COUNT;
+
+    character_move_player(active_player, single, is_blocked);
 }
 
 /**

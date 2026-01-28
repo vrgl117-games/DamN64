@@ -14,9 +14,11 @@ Controls
 
 | Button | Action |
 | --- | --- |
-| D-Pad / Stick | Move active vehicle |
-| C-Up / C-Down | Switch active vehicle |
+| D-Pad / Stick | Move your vehicle |
+| Z (single player) | Switch active vehicle |
 | L | Toggle debug overlay |
+
+With two controllers connected, each player controls a vehicle.
 
 Build and Run
 -------------
@@ -33,7 +35,6 @@ Other useful targets:
 make rebuild
 make clean
 make ares
-make flashair
 ```
 
 Project Structure

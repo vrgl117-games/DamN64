@@ -25,17 +25,15 @@ typedef struct
     bool A;
     bool B;
     bool L;
+    bool z;
     bool start;
-    bool c_up;
-    bool c_down;
 
-    bool plugged;
     bool rumble;
 
     direction_t direction;
 
 } control_t;
 
-control_t controls_get_keys();
+control_t **controls_get_keys(void);
 
 #endif //__CONTROLS_H__

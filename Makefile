@@ -1,6 +1,6 @@
 ARES_BIN := /Applications/ares.app/Contents/MacOS/ares
 
-.PHONY: all build docker rebuild setup resetup ares flashair clean help
+.PHONY: all build docker rebuild setup resetup ares clean help
 
 BUILD_DIR := build
 SOURCE_DIR := src
@@ -35,7 +35,7 @@ docker: setup
 
 rebuild: clean build	##  Erase temp files and create the rom.
 
-release: ##    Create release rom.
+release: ##  Create release rom.
 	@$(MAKE) BUILD_TYPE=release build
 
 # gfx #
@@ -94,16 +94,13 @@ resetup:	##  Force recreate the dev environment (docker image).
 	@echo "Rebuilding dev environment in docker..."
 	@docker build --platform linux/amd64 -t build --no-cache  - < Dockerfile
 
-ares: build ##    Start rom in Ares emulator.
+ares:		##     Start rom in Ares emulator.
 	@echo "Starting ares..."
 	@mkdir -p .ares/saves
 	$(ARES_BIN) --setting "Paths/Saves=$(CURDIR)/.ares/saves" $(ROM_NAME).z64
 
-sd:			##    Flash rom to N64 EverDrive SD card.
+sd:			##       Flash rom to N64 EverDrive SD card.
 	cp $(ROM_NAME).z64 /Volumes/N64/	
-
-flashair: 	## Flash rom to EverDrive using a flashair SD card.
-	curl -X POST -F 'file=@$(ROM_NAME).z64' http://flashair/upload.cgi
 
 clean:		##    Cleanup temp files.
 	@echo "Cleaning up temp files..."

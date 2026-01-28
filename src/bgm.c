@@ -23,9 +23,9 @@ static bool bgm_started = false;
 void bgm_init()
 {
     audio_init(44100, 4);
-    mixer_init(8);
+    mixer_init(1);
 
-    wav64_init_compression(3);
+    wav64_init_compression(0);
 }
 
 static void bgm_open_track()

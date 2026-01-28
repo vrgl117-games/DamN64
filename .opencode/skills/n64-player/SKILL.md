@@ -12,16 +12,11 @@ Play N64 ROMs in ares by taking screenshots to see the game state and sending co
 
 ## Launch ROM
 ```bash
-make ares 2>&1 | tee /tmp/ares.log &
-sleep 3  # wait for boot
+make build && make ares 2>&1 | tee /tmp/ares.log &
+sleep 1  # wait for boot
 ```
 
 ## Take screenshot
-```bash
-screencapture -l $(osascript -e 'tell app "ares" to id of window 1') /tmp/game.png
-```
-
-Fallback if window ID fails:
 ```bash
 osascript -e 'tell application "ares" to activate'
 screencapture -x /tmp/game.png  # capture frontmost
@@ -29,18 +24,23 @@ screencapture -x /tmp/game.png  # capture frontmost
 
 ## Send inputs
 ```bash
-cliclick kp:return        # Start / confirm
-cliclick kp:arrow-up      # D-pad up
-cliclick kp:arrow-down    # D-pad down
-cliclick kp:arrow-left    # D-pad left
-cliclick kp:arrow-right   # D-pad right
-cliclick kp:a             # A button
-cliclick kp:b             # B button
-cliclick kp:l             # L button
-cliclick kp:r             # R button
-cliclick kp:z             # Z button
-cliclick kp:plus          # C-Up
-cliclick kp:equal         # C-Down
+cliclick kp:enter        # Controller 1 Start
+cliclick kp:arrow-up     # Controller 1 D-pad up
+cliclick kp:arrow-down   # Controller 1 D-pad down
+cliclick kp:arrow-left   # Controller 1 D-pad left
+cliclick kp:arrow-right  # Controller 1 D-pad right
+cliclick t:a             # Controller 1 A button
+cliclick t:b             # Controller 1 B button
+cliclick t:l             # Controller 1 L button
+cliclick t:r             # Controller 1 R button
+cliclick t:z             # Controller 1 Z button
+
+cliclick t:u             # Controller 2 D-pad up
+cliclick t:j             # Controller 2 D-pad down
+cliclick t:h             # Controller 2 D-pad left
+cliclick t:k             # Controller 2 D-pad right
+cliclick t:s             # Controller 2 A button
+cliclick t:n             # Controller 2 B button
 ```
 
 Hold for duration:
@@ -53,7 +53,7 @@ cliclick kd:arrow-right && sleep 2 && cliclick ku:arrow-right
 2. Look at the image — what's on screen?
 3. Decide next input
 4. Send input
-5. Wait 0.5-1s
+5. Wait 0.1s
 6. Repeat
 
 ## Focus window

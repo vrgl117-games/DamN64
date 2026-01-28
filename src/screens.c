@@ -16,6 +16,8 @@
 #include "sprite.h"
 #include "title.h"
 
+extern const color_t background;
+
 static volatile int tick = 0;
 
 // screen_init: Initialize screen state.
@@ -116,8 +118,45 @@ void screen_title(display_context_t disp)
     rdpq_detach_show();
 }
 
+// screen_story: Render story screen.
+void screen_story(display_context_t disp, control_t *keys[2])
+{
+    const char *story_line_1 = "Damn! The dam broke and needs";
+    const char *story_line_2 = "to be repaired before the city floods!";
+    const char *continue_prompt = "Continue...";
+    const char *single_player_line_1 = "This game is best experience with 2 controllers,";
+    const char *single_player_line_2 = "use Z to switch character in single player mode.";
+    int screen_w = display_get_width();
+    int screen_h = display_get_height();
+    int story_y = (screen_h / 2) - 20;
+    int msg_y = screen_h - 90;
+    int continue_y = screen_h - 40;
+    bool single_controller = (keys[1] == NULL);
+
+    rdpq_attach(disp, NULL);
+    rdpq_clear(background);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, story_y, story_line_1);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, story_y + 32, story_line_2);
+
+    if (single_controller)
+    {
+        rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                        FONT_PIXEL, 0, msg_y, single_player_line_1);
+        rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                        FONT_PIXEL, 0, msg_y + 28, single_player_line_2);
+    }
+
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, continue_y, continue_prompt);
+
+    fps_draw();
+    rdpq_detach_show();
+}
+
 // screen_game: Update and render the game screen.
-void screen_game(display_context_t disp, control_t keys)
+void screen_game(display_context_t disp, control_t *keys[2])
 {
     game_update(keys);
     game_draw(disp);

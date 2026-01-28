@@ -57,8 +57,8 @@ static int map_pixel_height = 0;
 static int map_origin_x = 0;
 static int map_origin_y = 0;
 
-// blue background for tiles
-static const color_t tile_bg = RGBA32(63, 124, 182, 255);
+// blue background
+const color_t background = RGBA32(63, 124, 182, 255);
 
 // Maximum number of buildings we track for collision
 #define MAX_BUILDINGS 16
@@ -380,7 +380,7 @@ static void draw_scene_depth_sorted(map_t *map, int cam_x, int view_width)
  */
 void game_draw_title_background(int screen_w, int screen_h)
 {
-    rdpq_clear(tile_bg);
+    rdpq_clear(background);
 
     if (!base_tile)
         return;
@@ -509,15 +509,18 @@ static int clamp_camera_x(int cam_x, int view_width)
 /**
  * @brief game_update: Update movement, facing, and camera.
  */
-void game_update(control_t keys)
+void game_update(control_t *keys[2])
 {
     const int screen_w = display_get_width();
+    const control_t *p1 = keys[0];
+    const control_t *p2 = keys[1];
+    const control_t *player_keys[2] = {p1, p2};
 
     // Toggle debug overlay with L button
-    if (keys.L)
+    if (p1->L || (p2 && p2->L))
         debug_enabled = !debug_enabled;
 
-    character_update(keys, is_blocked_position);
+    character_update(player_keys, is_blocked_position);
 
     // Get both player positions
     int p1_x = 0, p1_y = 0;
@@ -631,7 +634,7 @@ void game_draw(display_context_t disp)
     if (split_screen_active)
     {
         rdpq_attach(disp, NULL);
-        rdpq_clear(tile_bg);
+        rdpq_clear(background);
         rdpq_detach();
 
         // === Left half: player who is further left in world ===
@@ -667,7 +670,7 @@ void game_draw(display_context_t disp)
     {
         // === Single screen mode ===
         rdpq_attach(disp, NULL);
-        rdpq_clear(tile_bg);
+        rdpq_clear(background);
         draw_scene_depth_sorted(&game_map, cam_x, screen_w);
 
         // Debug info for single mode

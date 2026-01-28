@@ -19,14 +19,12 @@ make build          # Build ROM (uses Docker automatically if available)
 make rebuild        # Clean and rebuild ROM
 make clean          # Remove build artifacts and generated files
 make setup          # Create Docker build environment (first-time setup)
-make resetup        # Force recreate Docker environment
 ```
 
 ### Running/Testing
 
 ```bash
 make ares           # Launch ROM in Ares emulator (macOS)
-make flashair       # Flash ROM to EverDrive via FlashAir SD card
 make help           # Show all available make targets
 ```
 
@@ -277,6 +275,6 @@ The N64 has limited CPU (93.75 MHz MIPS) and GPU (RDP) resources. Follow these p
 
 | Button | Action |
 |--------|--------|
-| D-Pad / Stick | Move active vehicle |
-| C-Up / C-Down | Switch active vehicle |
+| D-Pad / Stick | Move your vehicle |
+| Z (single player) | Switch active vehicle |
 | L | Toggle debug overlay |

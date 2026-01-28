@@ -11,48 +11,65 @@
 #include "controls.h"
 
 /**
- * @brief controls_get_keys: Poll controller input and build control state.
+ * @brief controls_read_port: Fill control state for one controller port.
  */
-control_t controls_get_keys()
+static void controls_read_port(control_t *keys, int port)
 {
-    control_t keys = {0};
-    memset(&keys, 0, sizeof(control_t));
+    if (!keys)
+        return;
+
+    joypad_buttons_t down = joypad_get_buttons_pressed(port);
+    joypad_buttons_t pressed = joypad_get_buttons(port);
+    int stick_x = joypad_get_axis_pressed(port, JOYPAD_AXIS_STICK_X);
+    int stick_y = joypad_get_axis_pressed(port, JOYPAD_AXIS_STICK_Y);
+
+    keys->rumble = (joypad_get_accessory_type(port) == JOYPAD_ACCESSORY_TYPE_RUMBLE_PAK);
+
+    if (down.a)
+        keys->A = true;
+    if (down.b)
+        keys->B = true;
+    if (down.l)
+        keys->L = true;
+    if (down.z)
+        keys->z = true;
+
+    if (down.d_up || stick_y > 0 || pressed.d_up)
+        keys->direction |= d_up;
+    if (down.d_down || stick_y < 0 || pressed.d_down)
+        keys->direction |= d_down;
+    if (down.d_left || stick_x < 0 || pressed.d_left)
+        keys->direction |= d_left;
+    if (down.d_right || stick_x > 0 || pressed.d_right)
+        keys->direction |= d_right;
+    if (down.start)
+        keys->start = true;
+}
+
+/**
+ * @brief controls_get_keys: Poll controller input for both ports.
+ * [0] is always player 1, [1] is NULL when controller 2 is not connected.
+ */
+control_t **controls_get_keys(void)
+{
+    static control_t keys[2];
+    static control_t *out[2];
+
+    memset(keys, 0, sizeof(keys));
+    out[0] = &keys[0];
+    out[1] = NULL;
 
     joypad_poll();
 
-    if (!joypad_is_connected(JOYPAD_PORT_1))
-        return keys;
+    bool p2_connected = joypad_is_connected(JOYPAD_PORT_2);
 
-    joypad_buttons_t down = joypad_get_buttons_pressed(JOYPAD_PORT_1);
-    joypad_buttons_t pressed = joypad_get_buttons(JOYPAD_PORT_1);
-    int stick_x = joypad_get_axis_pressed(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_X);
-    int stick_y = joypad_get_axis_pressed(JOYPAD_PORT_1, JOYPAD_AXIS_STICK_Y);
+    controls_read_port(&keys[0], JOYPAD_PORT_1);
 
-    keys.plugged = true;
+    if (p2_connected)
+    {
+        controls_read_port(&keys[1], JOYPAD_PORT_2);
+        out[1] = &keys[1];
+    }
 
-    keys.rumble = (joypad_get_accessory_type(JOYPAD_PORT_1) == JOYPAD_ACCESSORY_TYPE_RUMBLE_PAK);
-
-    if (down.a)
-        keys.A = true;
-    if (down.b)
-        keys.B = true;
-    if (down.l)
-        keys.L = true;
-    if (down.c_up)
-        keys.c_up = true;
-    if (down.c_down)
-        keys.c_down = true;
-
-    if (down.d_up || stick_y > 0 || pressed.d_up)
-        keys.direction |= d_up;
-    if (down.d_down || stick_y < 0 || pressed.d_down)
-        keys.direction |= d_down;
-    if (down.d_left || stick_x < 0 || pressed.d_left)
-        keys.direction |= d_left;
-    if (down.d_right || stick_x > 0 || pressed.d_right)
-        keys.direction |= d_right;
-    if (down.start)
-        keys.start = true;
-
-    return keys;
+    return out;
 }
