@@ -10,6 +10,7 @@
 
 #include "bgm.h"
 #include "controls.h"
+#include "fps.h"
 #include "font.h"
 #include "game.h"
 #include "screens.h"
@@ -67,6 +68,7 @@ int main()
             screen_game(disp, keys);
         }
 
+        fps_tick();
         bgm_update();
     }
 

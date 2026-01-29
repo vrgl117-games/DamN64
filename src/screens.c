@@ -9,6 +9,7 @@
 #include "screens.h"
 
 #include "bgm.h"
+#include "fps.h"
 #include "font.h"
 #include "game.h"
 #include "rdpq.h"
@@ -71,13 +72,16 @@ bool screen_intro(display_context_t disp)
         }
     }
 
+    rdpq_attach_clear(disp, NULL);
+    fps_draw();
     if (intro != NULL)
     {
-        rdpq_attach_clear(disp, NULL);
         rdpq_draw_faded_sprite(intro, 320 - intro->width / 2, 150, alpha);
         rdpq_detach_show();
         sprite_free(intro);
     }
+    else
+        rdpq_detach_show();
 
     return (anim >= 82);
 }
@@ -108,6 +112,7 @@ void screen_title(display_context_t disp)
     if (tick % 30 < 15)
         rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
                         FONT_PIXEL, 0, prompt_y, prompt);
+    fps_draw();
     rdpq_detach_show();
 }
 

@@ -9,6 +9,7 @@
 #include "rdpq.h"
 #include "sprite.h"
 #include "character.h"
+#include "fps.h"
 
 // Logical diamond footprint in screen space (not necessarily sprite size)
 #define ISO_W 64
@@ -682,5 +683,6 @@ void game_draw(display_context_t disp)
         }
     }
 
+    fps_draw();
     rdpq_detach_show();
 }
