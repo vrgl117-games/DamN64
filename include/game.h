@@ -19,6 +19,9 @@ typedef enum
     TILE_NONE = 0,
     TILE_BASE = 1,
     TILE_BUILDING = 2,
+    TILE_WATER = 3,
+    TILE_WALL = 4,
+    TILE_BROKEN_WALL = 5,
     TILE_COUNT
 } tile_id_t;
 

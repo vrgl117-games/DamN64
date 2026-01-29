@@ -11,6 +11,9 @@
 #define __ TILE_NONE
 #define BA TILE_BASE
 #define BD TILE_BUILDING
+#define WR TILE_WATER
+#define WL TILE_WALL
+#define BW TILE_BROKEN_WALL
 
 // Diamond-shaped map for horizontal scrolling
 // Buildings are placed directly in the tiles array (no separate layer)
@@ -29,20 +32,20 @@ map_t game_map = {
         /*  7 */ {__, __, __, __, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __},
         /*  8 */ {__, __, __, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA},
         /*  9 */ {__, __, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA},
-        /* 10 */ {__, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA},
-        /* 11 */ {__, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA},
-        /* 12 */ {__, __, __, BA, BA, BA, BA, BA, BD, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __},
-        /* 13 */ {__, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __},
-        /* 14 */ {__, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __},
-        /* 15 */ {BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __},
-        /* 16 */ {BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __},
-        /* 17 */ {BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BD, __, __, __, __, __, __},
-        /* 18 */ {BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __},
-        /* 19 */ {__, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __},
-        /* 20 */ {__, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __},
-        /* 21 */ {__, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __},
-        /* 22 */ {__, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __},
-        /* 23 */ {__, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __, __},
+        /* 10 */ {__, __, __, __, __, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA},
+        /* 11 */ {__, __, __, __, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA},
+        /* 12 */ {__, __, __, WR, WR, WL, BA, BA, BD, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __},
+        /* 13 */ {__, __, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __},
+        /* 14 */ {__, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __},
+        /* 15 */ {WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __},
+        /* 16 */ {WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __},
+        /* 17 */ {WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BD, __, __, __, __, __, __},
+        /* 18 */ {WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __},
+        /* 19 */ {__, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __},
+        /* 20 */ {__, __, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __},
+        /* 21 */ {__, __, __, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __},
+        /* 22 */ {__, __, __, __, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __},
+        /* 23 */ {__, __, __, __, __, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __, __},
         /* 24 */ {__, __, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __, __, __},
         /* 25 */ {__, __, __, __, __, __, __, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __, __, __, __},
         /* 26 */ {__, __, __, __, __, __, __, __, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __},

@@ -15,7 +15,6 @@
 #include "rdpq.h"
 
 #define TITLE_ISO_H 32
-#define TITLE_ISO_H_HALF 16
 #define TITLE_TRUCK_MAX 4
 #define TITLE_TRUCK_VARIANTS 2
 #define TITLE_TRUCK_SPAWN_FRAMES 45
@@ -132,7 +131,7 @@ void title_draw(int screen_w, int screen_h)
     {
         int index = title_draw_order[i];
         int screen_x = title_trucks[index].x;
-        int screen_y = screen_h / 2 - title_trucks[index].sprite->height + TITLE_ISO_H_HALF + title_trucks[index].y - 2;
+        int screen_y = screen_h / 2 - title_trucks[index].sprite->height + ISO_H_HALF + title_trucks[index].y - 2;
 
         rdpq_sprite_blit(title_trucks[index].sprite, screen_x, screen_y, NULL);
     }

@@ -19,7 +19,6 @@
 #define CAR_DIR_SW 5
 #define CAR_DIR_W 6
 #define CAR_DIR_NW 7
-#define TITLE_ISO_H_HALF 16
 
 static sprite_t *garbage_yellow_sprites[CAR_DIR_COUNT] = {0};
 static sprite_t *garbage_red_sprites[CAR_DIR_COUNT] = {0};
@@ -187,7 +186,7 @@ void character_draw_single(int index, int cam_x)
         return;
 
     int screen_x = character_x[index] - cam_x - (car->width / 2);
-    int screen_y = character_y[index] - stored_cam_y - car->height + TITLE_ISO_H_HALF;
+    int screen_y = character_y[index] - stored_cam_y - car->height + ISO_H_HALF;
 
     rdpq_sprite_blit(car, screen_x, screen_y, NULL);
 }
@@ -221,7 +220,7 @@ void character_draw(int cam_x)
             continue;
 
         int screen_x = character_x[index] - cam_x - (car->width / 2);
-        int screen_y = character_y[index] - stored_cam_y - car->height + TITLE_ISO_H_HALF;
+        int screen_y = character_y[index] - stored_cam_y - car->height + ISO_H_HALF;
 
         rdpq_sprite_blit(car, screen_x, screen_y, NULL);
     }

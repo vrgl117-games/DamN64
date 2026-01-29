@@ -212,6 +212,13 @@ joypad_buttons_t buttons = joypad_get_buttons_pressed(JOYPAD_PORT_1);
 - Output: `filesystem/gfx/sprites/*.sprite`
 - Vehicle sprites use `-f RGBA16` for transparency
 - Loaded at runtime: `sprite_load("rom:/gfx/sprites/name.sprite")`
+- To resize newly added city tiles to 64px width while preserving aspect ratio, use ImageMagick `convert`:
+
+```bash
+for file in resources/gfx/sprites/isometric-city/cityTiles_*.png; do
+  convert "$file" -resize 64x "$file"
+done
+```
 
 ### Audio
 

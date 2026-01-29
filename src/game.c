@@ -17,6 +17,9 @@
 
 static sprite_t *base_tile = NULL;
 static sprite_t *building_sprite = NULL;
+static sprite_t *water_tile = NULL;
+static sprite_t *wall_tile = NULL;
+static sprite_t *broken_wall_tile = NULL;
 static sprite_t *tile_sprites[TILE_COUNT] = {0};
 
 // Split-screen configuration
@@ -282,17 +285,7 @@ static void draw_scene_depth_sorted(map_t *map, int cam_x, int view_width)
             int world_y = origin_y + (x + y) * half_h;
             int screen_x = world_x - cam_x;
 
-            int screen_y;
-            if (tile_id == TILE_BUILDING)
-            {
-                // Align building base with base tile
-                screen_y = world_y - cam_y - (tile->height - spr_h);
-            }
-            else
-            {
-                // Base tile
-                screen_y = world_y - cam_y;
-            }
+            int screen_y = world_y - cam_y - (tile->height - spr_h);
 
             if (screen_x < -tile->width || screen_x > view_width ||
                 screen_y < -tile->height || screen_y > screen_h)
@@ -424,10 +417,16 @@ void game_init(void)
 {
     base_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_base.sprite");
     building_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_two.sprite");
+    water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water.sprite");
+    wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall.sprite");
+    broken_wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall.sprite");
 
     tile_sprites[TILE_NONE] = NULL;
     tile_sprites[TILE_BASE] = base_tile;
     tile_sprites[TILE_BUILDING] = building_sprite;
+    tile_sprites[TILE_WATER] = water_tile;
+    tile_sprites[TILE_WALL] = wall_tile;
+    tile_sprites[TILE_BROKEN_WALL] = broken_wall_tile;
 
     spr_w = base_tile->width;
     spr_h = base_tile->height;
