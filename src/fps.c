@@ -39,5 +39,5 @@ void fps_draw(void)
     int screen_w = display_get_width();
 
     rdpq_text_printf(&(rdpq_textparms_t){.width = screen_w - 8, .align = ALIGN_RIGHT},
-                     FONT_DEBUG, 0, 8, "FPS: %d", fps_value);
+                     FONT_DEBUG, 1, 10, "FPS: %d", fps_value);
 }

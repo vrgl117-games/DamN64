@@ -206,8 +206,6 @@ void character_draw(int cam_x)
         second = 0;
     }
 
-    rdpq_set_mode_copy(true);
-
     for (int i = 0; i < CHARACTER_COUNT; i++)
     {
         int index = (i == 0) ? first : second;

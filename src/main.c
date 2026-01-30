@@ -15,7 +15,7 @@
 #include "game.h"
 #include "screens.h"
 
-screen_t screen = title;
+screen_t screen = game;
 
 // main: Initialize systems and run main loop.
 int main()
