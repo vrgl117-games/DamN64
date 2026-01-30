@@ -14,12 +14,12 @@
 #include "game.h"
 #include "rdpq.h"
 
-#define TITLE_ISO_H 32
+#define TITLE_ISO_H 16
 #define TITLE_TRUCK_MAX 4
 #define TITLE_TRUCK_VARIANTS 2
 #define TITLE_TRUCK_SPAWN_FRAMES 45
 #define TITLE_TRUCK_MIN_SPEED 1
-#define TITLE_TRUCK_MAX_SPEED 3
+#define TITLE_TRUCK_MAX_SPEED 2
 #define TITLE_DIR_E 2
 #define TITLE_DIR_W 6
 
@@ -67,7 +67,7 @@ static void title_trucks_spawn(int screen_w)
 
     title_trucks[slot].active = true;
     title_trucks[slot].x = start_x;
-    title_trucks[slot].y = (rand() % 10) * 6 - 20;
+    title_trucks[slot].y = (rand() % 10) * 3 - 10;
     title_trucks[slot].speed = speed;
     title_trucks[slot].dir = (dir == TITLE_DIR_E) ? 1 : -1;
     title_trucks[slot].sprite = sprite;
@@ -131,7 +131,7 @@ void title_draw(int screen_w, int screen_h)
     {
         int index = title_draw_order[i];
         int screen_x = title_trucks[index].x;
-        int screen_y = screen_h / 2 - title_trucks[index].sprite->height + ISO_H_HALF + title_trucks[index].y - 2;
+        int screen_y = screen_h / 2 - title_trucks[index].sprite->height + ISO_H_HALF + title_trucks[index].y - 1;
 
         rdpq_sprite_blit(title_trucks[index].sprite, screen_x, screen_y, NULL);
     }

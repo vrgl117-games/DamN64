@@ -62,11 +62,11 @@ FONTS := filesystem/gfx/fonts/Kenney_Pixel_Square.font64 \
 filesystem/gfx/fonts/Kenney_Pixel_Square.font64: resources/gfx/fonts/Kenney_Pixel_Square.ttf
 	@mkdir -p $(dir $@)
 	@echo "    [MKFONT] $@"
-	@$(N64_MKFONT) -s 42 --ellipsis 30,0 --range 0x20-0x7E -o $(dir $@) $<
+	@$(N64_MKFONT) -s 21 --ellipsis 30,0 --range 0x20-0x7E -o $(dir $@) $<
 filesystem/gfx/fonts/Kenney_Pixel.font64: resources/gfx/fonts/Kenney_Pixel.ttf
 	@mkdir -p $(dir $@)
 	@echo "    [MKFONT] $@"
-	@$(N64_MKFONT) -s 32 --ellipsis 30,0 --range 0x20-0x7E -o $(dir $@) $<
+	@$(N64_MKFONT) -s 16 --ellipsis 30,0 --range 0x20-0x7E -o $(dir $@) $<
 # code #
 SRCS := $(wildcard $(SOURCE_DIR)/*.c)
 OBJS := $(SRCS:$(SOURCE_DIR)/%.c=$(BUILD_DIR)/%.o)

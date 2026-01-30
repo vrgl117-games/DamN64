@@ -20,7 +20,7 @@ screen_t screen = game;
 // main: Initialize systems and run main loop.
 int main()
 {
-    display_init(RESOLUTION_640x480, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_RESAMPLE_ANTIALIAS);
+    display_init(RESOLUTION_320x240, DEPTH_16_BPP, 2, GAMMA_NONE, FILTERS_RESAMPLE_ANTIALIAS);
     dfs_init(DFS_DEFAULT_LOCATION);
     rdpq_init();
 #ifndef NDEBUG

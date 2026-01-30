@@ -78,7 +78,11 @@ bool screen_intro(display_context_t disp)
     fps_draw();
     if (intro != NULL)
     {
-        rdpq_draw_faded_sprite(intro, 320 - intro->width / 2, 150, alpha);
+        int screen_w = display_get_width();
+        int screen_h = display_get_height();
+        int intro_x = (screen_w / 2) - (intro->width / 2);
+        int intro_y = (screen_h * 5) / 16;
+        rdpq_draw_faded_sprite(intro, intro_x, intro_y, alpha);
         rdpq_detach_show();
         sprite_free(intro);
     }
@@ -101,8 +105,8 @@ void screen_title(display_context_t disp)
     const char *prompt = "Press Any Button";
     int screen_w = display_get_width();
     int screen_h = display_get_height();
-    int title_y = (screen_h / 2) - 120;
-    int prompt_y = title_y + 260;
+    int title_y = screen_h / 4;
+    int prompt_y = title_y + (screen_h * 13) / 24;
 
     title_update(screen_w);
 

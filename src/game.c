@@ -11,8 +11,8 @@
 #include "character.h"
 #include "fps.h"
 // Logical diamond footprint in screen space (not necessarily sprite size)
-#define ISO_W 64
-#define ISO_H 32
+#define ISO_W 32
+#define ISO_H 16
 
 static sprite_t *base_tile = NULL;
 static sprite_t *building_sprite = NULL;
@@ -23,7 +23,7 @@ static map_render_t map_render = {0};
 
 // Split-screen configuration
 #define SPLIT_HYSTERESIS 0 // Buffer to prevent flickering
-#define DIVIDER_WIDTH 4    // Width of the divider line
+#define DIVIDER_WIDTH 2    // Width of the divider line
 
 static bool split_screen_active = false;
 
@@ -60,7 +60,7 @@ static int map_origin_x = 0;
 static int map_origin_y = 0;
 
 // blue background
-const color_t background = RGBA32(63, 124, 182, 255);
+const color_t background = RGBA32(35, 54, 66, 255);
 
 // Maximum number of buildings we track for collision
 #define MAX_BUILDINGS 16
@@ -88,9 +88,9 @@ static building_bbox_t building_boxes[MAX_BUILDINGS];
 static int building_count = 0;
 
 // Vehicle collision box dimensions (world space)
-static int vehicle_half_w = 10;  // Width
-static int vehicle_half_h = 8;   // Height
-static int vehicle_offset_y = 8; // Offset to move box lower
+static int vehicle_half_w = 7;   // Width
+static int vehicle_half_h = 6;   // Height
+static int vehicle_offset_y = 2; // Offset to move box lower
 
 /**
  * @brief in_bounds: Check if a tile coordinate is inside the map.
@@ -105,9 +105,9 @@ static bool in_bounds(int x, int y)
  */
 static bool world_to_grid(int world_x, int world_y, int *grid_x, int *grid_y)
 {
-    int half_w = step_x / 2;         // 32
-    int half_h = step_y;             // 16
-    int denom = 2 * half_w * half_h; // 1024
+    int half_w = step_x / 2;         // 16
+    int half_h = step_y;             // 8
+    int denom = 2 * half_w * half_h; // 256
 
     // Offset to tile center
     int local_x = world_x - map_origin_x - half_w;
@@ -363,15 +363,15 @@ void game_init(void)
 
                 // Box 1: Top bar of the T (wide, spans building width)
                 building_boxes[building_count].box1_off_x = 0;
-                building_boxes[building_count].box1_off_y = -4;
-                building_boxes[building_count].box1_half_w = 24;
-                building_boxes[building_count].box1_half_h = 8;
+                building_boxes[building_count].box1_off_y = 1;
+                building_boxes[building_count].box1_half_w = 12;
+                building_boxes[building_count].box1_half_h = 2;
 
                 // Box 2: Bottom stem of the T (narrow, shorter)
                 building_boxes[building_count].box2_off_x = 0;
-                building_boxes[building_count].box2_off_y = 10;
-                building_boxes[building_count].box2_half_w = 10;
-                building_boxes[building_count].box2_half_h = 4;
+                building_boxes[building_count].box2_off_y = 6;
+                building_boxes[building_count].box2_half_w = 6;
+                building_boxes[building_count].box2_half_h = 2;
 
                 building_count++;
             }
@@ -489,7 +489,8 @@ void game_draw(display_context_t disp)
     if (split_screen_active)
     {
         half_w = screen_w / 2;
-        right_view_x = (half_w / 32) * 32;
+        int align = ISO_W / 2;
+        right_view_x = (half_w / align) * align;
         if (right_view_x < DIVIDER_WIDTH)
             right_view_x = DIVIDER_WIDTH;
         left_view_w = right_view_x - DIVIDER_WIDTH;

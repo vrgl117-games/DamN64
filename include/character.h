@@ -12,7 +12,7 @@
 #include "sprite.h"
 #include <stdbool.h>
 
-#define ISO_H_HALF 16
+#define ISO_H_HALF 8
 
 typedef bool (*character_block_fn)(int world_x, int world_y);
 

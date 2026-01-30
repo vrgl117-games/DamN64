@@ -90,10 +90,10 @@ static void character_move_player(int index, const control_t *keys, character_bl
 
     if (dir_x || dir_y)
     {
-        int step_x = 4;
-        int step_y = 4;
+        int step_x = 2;
+        int step_y = 2;
         if (dir_x && dir_y)
-            step_y = 2;
+            step_y = 1;
 
         int next_x = *player_x + dir_x * step_x;
         int next_y = *player_y + dir_y * step_y;
