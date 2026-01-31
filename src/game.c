@@ -15,8 +15,16 @@
 #define ISO_H 16
 
 static sprite_t *base_tile = NULL;
-static sprite_t *building_sprite = NULL;
+static sprite_t *building_right_red_two = NULL;
+static sprite_t *beton_sprite = NULL;
+static sprite_t *building_right_red_one = NULL;
+static sprite_t *building_left_red_three = NULL;
+static sprite_t *building_left_white_one = NULL;
+static sprite_t *building_right_yellow_four = NULL;
+static sprite_t *building_left_white_six = NULL;
+static sprite_t *building_left_brown_three = NULL;
 static sprite_t *water_tile = NULL;
+static sprite_t *waves_tile = NULL;
 static sprite_t *wall_tile = NULL;
 static sprite_t *broken_wall_tile = NULL;
 static map_render_t map_render = {0};
@@ -139,9 +147,9 @@ static bool is_blocked_position(int world_x, int world_y)
     if (!world_to_grid(world_x, world_y, &grid_x, &grid_y))
         return true;
 
-    // TILE_NONE = blocked (void/water)
+    // TILE_NONE = blocked (void/water/waves)
     int tile = game_map.tiles[grid_y][grid_x];
-    if (tile == TILE_NONE || tile == TILE_WATER)
+    if (tile == TILE_NONE || tile == TILE_WATER || tile == TILE_WAVES)
         return true;
 
     // Vehicle position with offset
@@ -293,17 +301,33 @@ void game_draw_title_background(int screen_w, int screen_h)
 void game_init(void)
 {
     base_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_base.sprite");
-    building_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_two.sprite");
+    building_right_red_two = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_two.sprite");
+    beton_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton.sprite");
+    building_right_red_one = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_one.sprite");
+    building_left_red_three = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_red_three.sprite");
+    building_left_white_one = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_white_one.sprite");
+    building_right_yellow_four = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_yellow_four.sprite");
+    building_left_white_six = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_white_six.sprite");
+    building_left_brown_three = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_brown_three.sprite");
     water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water.sprite");
+    waves_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water_waves.sprite");
     wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall.sprite");
     broken_wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall.sprite");
 
     map_render.tile_sprites[TILE_NONE] = NULL;
     map_render.tile_sprites[TILE_BASE] = base_tile;
-    map_render.tile_sprites[TILE_BUILDING] = building_sprite;
+    map_render.tile_sprites[TILE_BUILDING_RIGHT_RED_TWO] = building_right_red_two;
     map_render.tile_sprites[TILE_WATER] = water_tile;
     map_render.tile_sprites[TILE_WALL] = wall_tile;
     map_render.tile_sprites[TILE_BROKEN_WALL] = broken_wall_tile;
+    map_render.tile_sprites[TILE_WAVES] = waves_tile;
+    map_render.tile_sprites[TILE_BETON] = beton_sprite;
+    map_render.tile_sprites[TILE_BUILDING_RIGHT_RED_ONE] = building_right_red_one;
+    map_render.tile_sprites[TILE_BUILDING_LEFT_RED_THREE] = building_left_red_three;
+    map_render.tile_sprites[TILE_BUILDING_LEFT_WHITE_ONE] = building_left_white_one;
+    map_render.tile_sprites[TILE_BUILDING_RIGHT_YELLOW_FOUR] = building_right_yellow_four;
+    map_render.tile_sprites[TILE_BUILDING_LEFT_WHITE_SIX] = building_left_white_six;
+    map_render.tile_sprites[TILE_BUILDING_LEFT_BROWN_THREE] = building_left_brown_three;
 
     spr_w = base_tile->width;
     spr_h = base_tile->height;
@@ -340,7 +364,14 @@ void game_init(void)
     map_render.spr_h = spr_h;
     map_render.cam_y = cam_y;
     map_render.base_tile = base_tile;
-    map_render.building_sprite = building_sprite;
+    map_render.building_right_red_two = building_right_red_two;
+    map_render.beton_sprite = beton_sprite;
+    map_render.building_right_red_one = building_right_red_one;
+    map_render.building_left_red_three = building_left_red_three;
+    map_render.building_left_white_one = building_left_white_one;
+    map_render.building_right_yellow_four = building_right_yellow_four;
+    map_render.building_left_white_six = building_left_white_six;
+    map_render.building_left_brown_three = building_left_brown_three;
 
     character_init(base_x, base_y, half_w, half_h, cam_y);
 
@@ -350,7 +381,14 @@ void game_init(void)
     {
         for (int x = 0; x < MAP_WIDTH && building_count < MAX_BUILDINGS; x++)
         {
-            if (game_map.tiles[y][x] == TILE_BUILDING)
+            if (game_map.tiles[y][x] == TILE_BUILDING_RIGHT_RED_TWO ||
+                game_map.tiles[y][x] == TILE_BETON ||
+                game_map.tiles[y][x] == TILE_BUILDING_RIGHT_RED_ONE ||
+                game_map.tiles[y][x] == TILE_BUILDING_LEFT_RED_THREE ||
+                game_map.tiles[y][x] == TILE_BUILDING_LEFT_WHITE_ONE ||
+                game_map.tiles[y][x] == TILE_BUILDING_RIGHT_YELLOW_FOUR ||
+                game_map.tiles[y][x] == TILE_BUILDING_LEFT_WHITE_SIX ||
+                game_map.tiles[y][x] == TILE_BUILDING_LEFT_BROWN_THREE)
             {
                 // Compute world center of this building tile
                 int world_x = map_origin_x + (x - y) * half_w + half_w;

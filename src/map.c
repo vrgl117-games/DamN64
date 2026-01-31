@@ -10,9 +10,17 @@
 #include "rdpq.h"
 
 #define __ TILE_NONE
-#define BA TILE_BASE
-#define BD TILE_BUILDING
-#define WR TILE_WATER
+#define OO TILE_BASE
+#define BT TILE_BETON
+#define B1 TILE_BUILDING_RIGHT_RED_TWO
+#define B2 TILE_BUILDING_RIGHT_RED_ONE
+#define B3 TILE_BUILDING_LEFT_RED_THREE
+#define B4 TILE_BUILDING_LEFT_WHITE_ONE
+#define B5 TILE_BUILDING_RIGHT_YELLOW_FOUR
+#define B6 TILE_BUILDING_LEFT_WHITE_SIX
+#define B7 TILE_BUILDING_LEFT_BROWN_THREE
+#define WR TILE_WAVES
+#define WV TILE_WAVES
 #define WL TILE_WALL
 #define BW TILE_BROKEN_WALL
 
@@ -23,33 +31,33 @@ map_t game_map = {
     .height = MAP_HEIGHT,
     .tiles = {
         //        0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26
-        /*  0 */ {__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, BA, BA, BA, BA, __, __, __, __, __, __, __, __},
-        /*  1 */ {__, __, __, __, __, __, __, __, __, __, __, __, __, __, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __},
-        /*  2 */ {__, __, __, __, __, __, __, __, __, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __},
-        /*  3 */ {__, __, __, __, __, __, __, __, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __},
-        /*  4 */ {__, __, __, __, __, __, __, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __},
-        /*  5 */ {__, __, __, __, __, __, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __},
-        /*  6 */ {__, __, __, __, __, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __},
-        /*  7 */ {__, __, __, __, __, __, __, __, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __},
-        /*  8 */ {__, __, __, __, __, __, __, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA},
-        /*  9 */ {__, __, __, __, __, __, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA},
-        /* 10 */ {__, __, __, __, __, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA},
-        /* 11 */ {__, __, __, __, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA},
-        /* 12 */ {__, __, __, WR, WR, WR, WR, WL, BD, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __},
-        /* 13 */ {__, __, WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __},
-        /* 14 */ {__, WR, WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __},
-        /* 15 */ {WR, WR, WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __},
-        /* 16 */ {WR, WR, WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __},
-        /* 17 */ {WR, WR, WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BD, __, __, __, __, __, __},
-        /* 18 */ {WR, WR, WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __},
-        /* 19 */ {__, WR, WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __},
-        /* 20 */ {__, __, WR, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __},
-        /* 21 */ {__, __, __, WR, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __},
-        /* 22 */ {__, __, __, __, WR, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __},
-        /* 23 */ {__, __, __, __, __, WR, WR, WL, BA, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __, __},
-        /* 24 */ {__, __, __, __, __, __, WR, WL, BA, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __, __, __},
-        /* 25 */ {__, __, __, __, __, __, __, WL, BA, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __, __, __, __},
-        /* 26 */ {__, __, __, __, __, __, __, __, BA, BA, BA, BA, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __},
+        /*  0 */ {__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, OO, OO, OO, OO, __, __, __, __, __, __, __, __},
+        /*  1 */ {__, __, __, __, __, __, __, __, __, __, __, __, __, __, OO, BT, OO, OO, BT, OO, __, __, __, __, __, __, __},
+        /*  2 */ {__, __, __, __, __, __, __, __, __, __, __, __, __, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __},
+        /*  3 */ {__, __, __, __, __, __, __, __, __, __, __, __, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __},
+        /*  4 */ {__, __, __, __, __, __, __, __, __, __, __, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __},
+        /*  5 */ {__, __, __, __, __, __, __, __, __, __, OO, OO, OO, OO, OO, OO, B3, OO, OO, OO, OO, OO, OO, OO, __, __, __},
+        /*  6 */ {__, __, __, __, __, __, __, __, __, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __},
+        /*  7 */ {__, __, __, __, __, __, __, __, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __},
+        /*  8 */ {__, __, __, __, __, __, __, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, B6, OO, OO, OO, OO},
+        /*  9 */ {__, __, __, __, __, __, WV, WL, OO, OO, OO, B4, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO},
+        /* 10 */ {__, __, __, __, __, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO},
+        /* 11 */ {__, __, __, __, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, B7, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO},
+        /* 12 */ {__, __, __, WR, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, B2, OO, OO, OO, OO, __},
+        /* 13 */ {__, __, WV, WR, WV, WR, WR, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __},
+        /* 14 */ {__, WR, WV, WR, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __},
+        /* 15 */ {WV, WR, WR, WV, WR, WV, WR, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __},
+        /* 16 */ {WR, WV, WR, WR, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, B5, OO, OO, OO, OO, OO, __, __, __, __, __},
+        /* 17 */ {WV, WR, WV, WR, WR, WV, WR, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __},
+        /* 18 */ {WR, WV, WR, WV, WR, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __, __},
+        /* 19 */ {__, WR, WV, WR, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, B1, OO, OO, OO, OO, __, __, __, __, __, __, __, __},
+        /* 20 */ {__, __, WV, WR, WV, WR, WR, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __, __, __, __},
+        /* 21 */ {__, __, __, WR, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __, __, __, __, __},
+        /* 22 */ {__, __, __, __, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __, __, __, __, __, __},
+        /* 23 */ {__, __, __, __, __, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __, __, __, __, __, __, __},
+        /* 24 */ {__, __, __, __, __, __, WV, WL, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __, __, __, __, __, __, __, __},
+        /* 25 */ {__, __, __, __, __, __, __, WL, OO, OO, OO, OO, OO, __, __, __, __, __, __, __, __, __, __, __, __, __, __},
+        /* 26 */ {__, __, __, __, __, __, __, __, OO, OO, OO, OO, __, __, __, __, __, __, __, __, __, __, __, __, __, __, __},
     },
     .row_start = {
         15,
@@ -82,8 +90,62 @@ map_t game_map = {
     }};
 
 #undef __
-#undef BA
-#undef BD
+#undef OO
+#undef BT
+#undef B1
+#undef B2
+#undef B3
+#undef B4
+#undef B5
+#undef B6
+#undef B7
+#undef WR
+#undef WV
+#undef WL
+#undef BW
+
+/**
+ * @brief is_building_tile: Return true if tile draws in building pass.
+ */
+static bool is_building_tile(int tile_id)
+{
+    return tile_id == TILE_BUILDING_RIGHT_RED_TWO ||
+           tile_id == TILE_BETON ||
+           tile_id == TILE_BUILDING_RIGHT_RED_ONE ||
+           tile_id == TILE_BUILDING_LEFT_RED_THREE ||
+           tile_id == TILE_BUILDING_LEFT_WHITE_ONE ||
+           tile_id == TILE_BUILDING_RIGHT_YELLOW_FOUR ||
+           tile_id == TILE_BUILDING_LEFT_WHITE_SIX ||
+           tile_id == TILE_BUILDING_LEFT_BROWN_THREE;
+}
+
+/**
+ * @brief get_building_sprite: Return sprite for building tile id.
+ */
+static sprite_t *get_building_sprite(const map_render_t *render, int tile_id)
+{
+    switch (tile_id)
+    {
+    case TILE_BUILDING_RIGHT_RED_TWO:
+        return render->building_right_red_two;
+    case TILE_BETON:
+        return render->beton_sprite;
+    case TILE_BUILDING_RIGHT_RED_ONE:
+        return render->building_right_red_one;
+    case TILE_BUILDING_LEFT_RED_THREE:
+        return render->building_left_red_three;
+    case TILE_BUILDING_LEFT_WHITE_ONE:
+        return render->building_left_white_one;
+    case TILE_BUILDING_RIGHT_YELLOW_FOUR:
+        return render->building_right_yellow_four;
+    case TILE_BUILDING_LEFT_WHITE_SIX:
+        return render->building_left_white_six;
+    case TILE_BUILDING_LEFT_BROWN_THREE:
+        return render->building_left_brown_three;
+    default:
+        return NULL;
+    }
+}
 
 /**
  * @brief map_draw: Draw tiles in row order.
@@ -105,7 +167,7 @@ void map_draw(const map_t *map, const map_render_t *render, int cam_x, int view_
             int tile_id = map->tiles[y][x];
             sprite_t *tile = render->tile_sprites[tile_id];
 
-            if (tile_id == TILE_BUILDING)
+            if (is_building_tile(tile_id))
             {
                 tile = render->base_tile;
             }
@@ -148,16 +210,14 @@ void map_draw_buildings(const map_t *map, const map_render_t *render, int cam_x,
 
     int half_w = render->step_x / 2;
     int half_h = render->step_y;
-    sprite_t *building = render->building_sprite;
-
-    if (!building)
-        return;
-
     for (int y = 0; y < map->height; y++)
     {
         for (int x = map->row_start[y]; x < map->width; x++)
         {
-            if (map->tiles[y][x] != TILE_BUILDING)
+            int tile_id = map->tiles[y][x];
+            sprite_t *building = get_building_sprite(render, tile_id);
+
+            if (!building)
                 continue;
 
             int world_x = origin_x + (x - y) * half_w;

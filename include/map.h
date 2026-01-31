@@ -18,10 +18,18 @@ typedef enum
 {
     TILE_NONE = 0,
     TILE_BASE = 1,
-    TILE_BUILDING = 2,
+    TILE_BUILDING_RIGHT_RED_TWO = 2,
     TILE_WATER = 3,
     TILE_WALL = 4,
     TILE_BROKEN_WALL = 5,
+    TILE_WAVES = 6,
+    TILE_BETON = 7,
+    TILE_BUILDING_RIGHT_RED_ONE = 8,
+    TILE_BUILDING_LEFT_RED_THREE = 9,
+    TILE_BUILDING_LEFT_WHITE_ONE = 10,
+    TILE_BUILDING_RIGHT_YELLOW_FOUR = 11,
+    TILE_BUILDING_LEFT_WHITE_SIX = 12,
+    TILE_BUILDING_LEFT_BROWN_THREE = 13,
     TILE_COUNT
 } tile_id_t;
 
@@ -43,7 +51,14 @@ typedef struct
     int cam_y;
     sprite_t *tile_sprites[TILE_COUNT];
     sprite_t *base_tile;
-    sprite_t *building_sprite;
+    sprite_t *building_right_red_two;
+    sprite_t *beton_sprite;
+    sprite_t *building_right_red_one;
+    sprite_t *building_left_red_three;
+    sprite_t *building_left_white_one;
+    sprite_t *building_right_yellow_four;
+    sprite_t *building_left_white_six;
+    sprite_t *building_left_brown_three;
 } map_render_t;
 
 extern map_t game_map;
