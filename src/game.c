@@ -6,9 +6,11 @@
  * of the Apache license. See the LICENSE file for details.
  */
 #include "game.h"
+
 #include "rdpq.h"
 #include "sprite.h"
 #include "character.h"
+#include "dam.h"
 #include "fps.h"
 // Logical diamond footprint in screen space (not necessarily sprite size)
 #define ISO_W 32
@@ -147,9 +149,10 @@ static bool is_blocked_position(int world_x, int world_y)
     if (!world_to_grid(world_x, world_y, &grid_x, &grid_y))
         return true;
 
-    // TILE_NONE = blocked (void/water/waves)
+    // TILE_NONE = blocked (void/water/waves/walls)
     int tile = game_map.tiles[grid_y][grid_x];
-    if (tile == TILE_NONE || tile == TILE_WATER || tile == TILE_WAVES)
+    if (tile == TILE_NONE || tile == TILE_WATER || tile == TILE_WAVES ||
+        tile == TILE_WALL || tile == TILE_WALL_BREAKING || tile == TILE_BROKEN_WALL)
         return true;
 
     // Vehicle position with offset
@@ -319,6 +322,7 @@ void game_init(void)
     map_render.tile_sprites[TILE_BUILDING_RIGHT_RED_TWO] = building_right_red_two;
     map_render.tile_sprites[TILE_WATER] = water_tile;
     map_render.tile_sprites[TILE_WALL] = wall_tile;
+    map_render.tile_sprites[TILE_WALL_BREAKING] = wall_tile;
     map_render.tile_sprites[TILE_BROKEN_WALL] = broken_wall_tile;
     map_render.tile_sprites[TILE_WAVES] = waves_tile;
     map_render.tile_sprites[TILE_BETON] = beton_sprite;
@@ -373,6 +377,7 @@ void game_init(void)
     map_render.building_left_white_six = building_left_white_six;
     map_render.building_left_brown_three = building_left_brown_three;
 
+    dam_init();
     character_init(base_x, base_y, half_w, half_h, cam_y);
 
     // Build collision boxes for all buildings (T-shape: 2 boxes per building)
@@ -443,6 +448,7 @@ void game_update(control_t *keys[2])
     if (p1->L || (p2 && p2->L))
         debug_enabled = !debug_enabled;
 
+    dam_update();
     character_update(player_keys, is_blocked_position);
 
     // Get both player positions
@@ -581,6 +587,8 @@ void game_draw(display_context_t disp)
             draw_debug_collision(cam_x);
         }
     }
+
+    dam_draw_breach_bar(screen_w);
 
     fps_draw();
     rdpq_detach_show();

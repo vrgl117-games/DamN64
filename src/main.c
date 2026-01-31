@@ -15,7 +15,7 @@
 #include "game.h"
 #include "screens.h"
 
-screen_t screen = story;
+screen_t screen = game;
 
 // main: Initialize systems and run main loop.
 int main()
@@ -32,7 +32,7 @@ int main()
     timer_init();
     font_init();
 
-    srand(timer_ticks() & 0x7FFFFFFF);
+    srand(TICKS_READ());
 
     new_timer(TIMER_TICKS(50000), TF_CONTINUOUS, screen_timer_title);
     surface_t *disp = NULL;
