@@ -1,8 +1,10 @@
 # TODO
 
 - Add music per level and music to story 
+- Add warning 2 players / rumble screen
 - Rework collisions
+- Make is to we can fix the wall
+- Add pause menu
 - Better map
-- Fix joystick
 - Add game end when breach is max
 - Verify build and ROM on real hardware

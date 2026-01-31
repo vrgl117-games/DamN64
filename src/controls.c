@@ -6,6 +6,7 @@
  * of the Apache license. See the LICENSE file for details.
  */
 
+#include <stdlib.h>
 #include <string.h>
 
 #include "controls.h"
@@ -20,8 +21,18 @@ static void controls_read_port(control_t *keys, int port)
 
     joypad_buttons_t down = joypad_get_buttons_pressed(port);
     joypad_buttons_t pressed = joypad_get_buttons(port);
-    int stick_x = joypad_get_axis_pressed(port, JOYPAD_AXIS_STICK_X);
-    int stick_y = joypad_get_axis_pressed(port, JOYPAD_AXIS_STICK_Y);
+    joypad_inputs_t inputs = joypad_get_inputs(port);
+    int stick_x = inputs.stick_x;
+    int stick_y = inputs.stick_y;
+    int abs_x = abs(stick_x);
+    int abs_y = abs(stick_y);
+    int max_axis = (abs_x > abs_y) ? abs_x : abs_y;
+
+    if (max_axis < 8)
+    {
+        stick_x = 0;
+        stick_y = 0;
+    }
 
     keys->rumble = (joypad_get_accessory_type(port) == JOYPAD_ACCESSORY_TYPE_RUMBLE_PAK);
 

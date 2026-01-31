@@ -115,6 +115,7 @@ static int plant_r_x = -1;
 static int plant_r_y = -1;
 static uint32_t plant_y_empty_tick = 0;
 static uint32_t plant_r_empty_tick = 0;
+static int rumble_ticks[2] = {0, 0};
 
 static bool world_to_grid(int world_x, int world_y, int *grid_x, int *grid_y);
 static void update_plant_tiles(void);
@@ -144,6 +145,7 @@ static void update_truck_full(void)
             tile_above == TILE_BETON_YELLOW)
         {
             character_set_full(0, true);
+            rumble_ticks[0] = 3;
             plant_ready_y = false;
             plant_y_empty_tick = get_ticks();
             update_plant_tiles();
@@ -154,6 +156,7 @@ static void update_truck_full(void)
                  tile_above == TILE_BETON_RED)
         {
             character_set_full(1, true);
+            rumble_ticks[1] = 3;
             plant_ready_r = false;
             plant_r_empty_tick = get_ticks();
             update_plant_tiles();
@@ -578,6 +581,18 @@ void game_update(control_t *keys[2])
     dam_update();
     character_update(player_keys, is_blocked_position);
     update_truck_full();
+    if (keys[0] && keys[0]->rumble)
+    {
+        joypad_set_rumble_active(JOYPAD_PORT_1, rumble_ticks[0] > 0);
+    }
+    if (keys[1] && keys[1]->rumble)
+    {
+        joypad_set_rumble_active(JOYPAD_PORT_2, rumble_ticks[1] > 0);
+    }
+    if (rumble_ticks[0] > 0)
+        rumble_ticks[0]--;
+    if (rumble_ticks[1] > 0)
+        rumble_ticks[1]--;
     update_plant_tiles();
 
     // Get both player positions
