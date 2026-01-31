@@ -125,38 +125,59 @@ void screen_title(display_context_t disp)
 // screen_story: Render story screen.
 void screen_story(display_context_t disp, control_t *keys[2])
 {
-    const char *story_line_1 = "Damn! The dam broke and needs";
-    const char *story_line_2 = "to be repaired before the city floods!";
+    const char *top = "Damn!! The Dam broke!";
+
+    const char *story_line = "It needs to be repaired before the city floods !";
+    const char *tutorial_line_0 = "Use the trucks                          to bring";
+    const char *tutorial_line_1 = "concrete from the factory";
+    const char *tutorial_line_2 = "to the broken sections                       to fix them asap!";
     const char *continue_prompt = "Continue...";
-    const char *single_player_line_1 = "This game is best experience with 2 controllers,";
-    const char *single_player_line_2 = "use Z to switch character in single player mode.";
     int screen_w = display_get_width();
-    int screen_h = display_get_height();
-    int story_y = (screen_h / 2) - 20;
-    int msg_y = screen_h - 90;
-    int continue_y = screen_h - 40;
-    bool single_controller = (keys[1] == NULL);
+
+    (void)keys;
+
+    sprite_t *beton_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton.sprite");
+    sprite_t *broken_wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall.sprite");
+    sprite_t *truck_yellow = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_yellow_SE.sprite");
+    sprite_t *truck_red = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_SE.sprite");
 
     rdpq_attach(disp, NULL);
     rdpq_clear(background);
     rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
-                    FONT_PIXEL, 0, story_y, story_line_1);
+                    FONT_PIXEL_SQUARE, 0, display_get_height() / 4, top);
     rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
-                    FONT_PIXEL, 0, story_y + 32, story_line_2);
+                    FONT_PIXEL, 0, 78, story_line);
 
-    if (single_controller)
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, 116, tutorial_line_0);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, 146, tutorial_line_1);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, 177, tutorial_line_2);
+
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, 220, continue_prompt);
+
+    if (beton_tile && broken_wall_tile && truck_yellow && truck_red)
     {
-        rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
-                        FONT_PIXEL, 0, msg_y, single_player_line_1);
-        rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
-                        FONT_PIXEL, 0, msg_y + 28, single_player_line_2);
+        rdpq_set_mode_copy(true);
+        rdpq_sprite_blit(beton_tile, 240, 124, NULL);
+        rdpq_sprite_blit(broken_wall_tile, 160, 156, NULL);
+        rdpq_sprite_blit(truck_yellow, 156, 106, NULL);
+        rdpq_sprite_blit(truck_red, 178, 106, NULL);
     }
-
-    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
-                    FONT_PIXEL, 0, continue_y, continue_prompt);
 
     fps_draw();
     rdpq_detach_show();
+
+    if (beton_tile)
+        sprite_free(beton_tile);
+    if (broken_wall_tile)
+        sprite_free(broken_wall_tile);
+    if (truck_yellow)
+        sprite_free(truck_yellow);
+    if (truck_red)
+        sprite_free(truck_red);
 }
 
 // screen_game: Update and render the game screen.
