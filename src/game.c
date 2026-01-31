@@ -28,7 +28,7 @@ static map_render_t map_render = {0};
 static bool split_screen_active = false;
 
 // Debug overlay toggle (L button)
-static bool debug_enabled = true;
+static bool debug_enabled = false;
 
 // Which player is on the left half in split mode (0 = P1, 1 = P2)
 static int left_player = 0;

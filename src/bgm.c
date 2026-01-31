@@ -22,7 +22,7 @@ static bool bgm_started = false;
 
 void bgm_init()
 {
-    audio_init(44100, 4);
+    audio_init(22050, 4);
     mixer_init(1);
 
     wav64_init_compression(0);
@@ -30,7 +30,7 @@ void bgm_init()
 
 static void bgm_open_track()
 {
-    const char *path = "rom:/sfx/bgms/DamN64_intro_pause_screen.wav64";
+    const char *path = "rom:/sfx/bgms/DamN64_intro_pause_screen_22k.wav64";
 
     mixer_ch_stop(BGM_CHANNEL);
     wav64_close(&bgm_wav);
