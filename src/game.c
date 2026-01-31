@@ -7,11 +7,14 @@
  */
 #include "game.h"
 
+#include <libdragon.h>
+
 #include "rdpq.h"
 #include "sprite.h"
 #include "character.h"
 #include "dam.h"
 #include "fps.h"
+#include "font.h"
 // Logical diamond footprint in screen space (not necessarily sprite size)
 #define ISO_W 32
 #define ISO_H 16
@@ -19,6 +22,8 @@
 static sprite_t *base_tile = NULL;
 static sprite_t *building_right_red_two = NULL;
 static sprite_t *beton_sprite = NULL;
+static sprite_t *beton_red_sprite = NULL;
+static sprite_t *beton_yellow_sprite = NULL;
 static sprite_t *building_right_red_one = NULL;
 static sprite_t *building_left_red_three = NULL;
 static sprite_t *building_left_white_one = NULL;
@@ -102,12 +107,98 @@ static int vehicle_half_w = 7;   // Width
 static int vehicle_half_h = 6;   // Height
 static int vehicle_offset_y = 2; // Offset to move box lower
 
+static bool plant_ready_y = true;
+static bool plant_ready_r = true;
+static int plant_y_x = -1;
+static int plant_y_y = -1;
+static int plant_r_x = -1;
+static int plant_r_y = -1;
+static uint32_t plant_y_empty_tick = 0;
+static uint32_t plant_r_empty_tick = 0;
+
+static bool world_to_grid(int world_x, int world_y, int *grid_x, int *grid_y);
+static void update_plant_tiles(void);
+
+/**
+ * @brief update_truck_full: Set full state when driving below beton.
+ */
+static void update_truck_full(void)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        int wx = 0;
+        int wy = 0;
+        int gx = 0;
+        int gy = 0;
+
+        character_get_position(i, &wx, &wy);
+        if (!world_to_grid(wx, wy, &gx, &gy))
+            continue;
+        if (gy <= 0)
+            continue;
+        int tile_above = game_map.tiles[gy - 1][gx];
+
+        if (i == 0 &&
+            !character_is_full(0) &&
+            plant_ready_y &&
+            tile_above == TILE_BETON_YELLOW)
+        {
+            character_set_full(0, true);
+            plant_ready_y = false;
+            plant_y_empty_tick = get_ticks();
+            update_plant_tiles();
+        }
+        else if (i == 1 &&
+                 !character_is_full(1) &&
+                 plant_ready_r &&
+                 tile_above == TILE_BETON_RED)
+        {
+            character_set_full(1, true);
+            plant_ready_r = false;
+            plant_r_empty_tick = get_ticks();
+            update_plant_tiles();
+        }
+    }
+}
+
 /**
  * @brief in_bounds: Check if a tile coordinate is inside the map.
  */
 static bool in_bounds(int x, int y)
 {
     return (x >= 0 && x < MAP_WIDTH && y >= 0 && y < MAP_HEIGHT);
+}
+
+/**
+ * @brief update_plant_tiles: Update plant tiles based on readiness.
+ */
+static void update_plant_tiles(void)
+{
+    uint32_t now = get_ticks();
+
+    if (!plant_ready_y && plant_y_empty_tick > 0 &&
+        now - plant_y_empty_tick >= 5 * TICKS_PER_SECOND)
+    {
+        plant_ready_y = true;
+        plant_y_empty_tick = 0;
+    }
+
+    if (!plant_ready_r && plant_r_empty_tick > 0 &&
+        now - plant_r_empty_tick >= 5 * TICKS_PER_SECOND)
+    {
+        plant_ready_r = true;
+        plant_r_empty_tick = 0;
+    }
+
+    if (plant_y_x >= 0 && plant_y_y >= 0)
+    {
+        game_map.tiles[plant_y_y][plant_y_x] = plant_ready_y ? TILE_BETON_YELLOW : TILE_BETON;
+    }
+
+    if (plant_r_x >= 0 && plant_r_y >= 0)
+    {
+        game_map.tiles[plant_r_y][plant_r_x] = plant_ready_r ? TILE_BETON_RED : TILE_BETON;
+    }
 }
 
 /**
@@ -306,6 +397,8 @@ void game_init(void)
     base_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_base.sprite");
     building_right_red_two = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_two.sprite");
     beton_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton.sprite");
+    beton_red_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton_red.sprite");
+    beton_yellow_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton_yellow.sprite");
     building_right_red_one = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_one.sprite");
     building_left_red_three = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_red_three.sprite");
     building_left_white_one = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_white_one.sprite");
@@ -326,6 +419,8 @@ void game_init(void)
     map_render.tile_sprites[TILE_BROKEN_WALL] = broken_wall_tile;
     map_render.tile_sprites[TILE_WAVES] = waves_tile;
     map_render.tile_sprites[TILE_BETON] = beton_sprite;
+    map_render.tile_sprites[TILE_BETON_RED] = beton_red_sprite;
+    map_render.tile_sprites[TILE_BETON_YELLOW] = beton_yellow_sprite;
     map_render.tile_sprites[TILE_BUILDING_RIGHT_RED_ONE] = building_right_red_one;
     map_render.tile_sprites[TILE_BUILDING_LEFT_RED_THREE] = building_left_red_three;
     map_render.tile_sprites[TILE_BUILDING_LEFT_WHITE_ONE] = building_left_white_one;
@@ -370,6 +465,8 @@ void game_init(void)
     map_render.base_tile = base_tile;
     map_render.building_right_red_two = building_right_red_two;
     map_render.beton_sprite = beton_sprite;
+    map_render.beton_red_sprite = beton_red_sprite;
+    map_render.beton_yellow_sprite = beton_yellow_sprite;
     map_render.building_right_red_one = building_right_red_one;
     map_render.building_left_red_three = building_left_red_three;
     map_render.building_left_white_one = building_left_white_one;
@@ -380,6 +477,34 @@ void game_init(void)
     dam_init();
     character_init(base_x, base_y, half_w, half_h, cam_y);
 
+    plant_y_x = -1;
+    plant_y_y = -1;
+    plant_r_x = -1;
+    plant_r_y = -1;
+
+    for (int y = 0; y < MAP_HEIGHT; y++)
+    {
+        for (int x = 0; x < MAP_WIDTH; x++)
+        {
+            if (game_map.tiles[y][x] == TILE_BETON_YELLOW)
+            {
+                plant_y_x = x;
+                plant_y_y = y;
+            }
+            else if (game_map.tiles[y][x] == TILE_BETON_RED)
+            {
+                plant_r_x = x;
+                plant_r_y = y;
+            }
+        }
+    }
+
+    plant_ready_y = true;
+    plant_ready_r = true;
+    plant_y_empty_tick = 0;
+    plant_r_empty_tick = 0;
+    update_plant_tiles();
+
     // Build collision boxes for all buildings (T-shape: 2 boxes per building)
     building_count = 0;
     for (int y = 0; y < MAP_HEIGHT && building_count < MAX_BUILDINGS; y++)
@@ -388,6 +513,8 @@ void game_init(void)
         {
             if (game_map.tiles[y][x] == TILE_BUILDING_RIGHT_RED_TWO ||
                 game_map.tiles[y][x] == TILE_BETON ||
+                game_map.tiles[y][x] == TILE_BETON_RED ||
+                game_map.tiles[y][x] == TILE_BETON_YELLOW ||
                 game_map.tiles[y][x] == TILE_BUILDING_RIGHT_RED_ONE ||
                 game_map.tiles[y][x] == TILE_BUILDING_LEFT_RED_THREE ||
                 game_map.tiles[y][x] == TILE_BUILDING_LEFT_WHITE_ONE ||
@@ -450,6 +577,8 @@ void game_update(control_t *keys[2])
 
     dam_update();
     character_update(player_keys, is_blocked_position);
+    update_truck_full();
+    update_plant_tiles();
 
     // Get both player positions
     int p1_x = 0, p1_y = 0;
@@ -589,6 +718,18 @@ void game_draw(display_context_t disp)
     }
 
     dam_draw_breach_bar(screen_w);
+
+    if (debug_enabled)
+    {
+        rdpq_text_printf(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_LEFT},
+                         FONT_DEBUG, 8, screen_h - 52, "P1 full: %s", character_is_full(0) ? "on" : "off");
+        rdpq_text_printf(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_LEFT},
+                         FONT_DEBUG, 8, screen_h - 40, "P2 full: %s", character_is_full(1) ? "on" : "off");
+        rdpq_text_printf(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_LEFT},
+                         FONT_DEBUG, 8, screen_h - 28, "Plant Y ready: %s", plant_ready_y ? "on" : "off");
+        rdpq_text_printf(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_LEFT},
+                         FONT_DEBUG, 8, screen_h - 16, "Plant R ready: %s", plant_ready_r ? "on" : "off");
+    }
 
     fps_draw();
     rdpq_detach_show();

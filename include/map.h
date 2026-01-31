@@ -25,12 +25,14 @@ typedef enum
     TILE_BROKEN_WALL = 6,
     TILE_WAVES = 7,
     TILE_BETON = 8,
-    TILE_BUILDING_RIGHT_RED_ONE = 9,
-    TILE_BUILDING_LEFT_RED_THREE = 10,
-    TILE_BUILDING_LEFT_WHITE_ONE = 11,
-    TILE_BUILDING_RIGHT_YELLOW_FOUR = 12,
-    TILE_BUILDING_LEFT_WHITE_SIX = 13,
-    TILE_BUILDING_LEFT_BROWN_THREE = 14,
+    TILE_BETON_RED = 9,
+    TILE_BETON_YELLOW = 10,
+    TILE_BUILDING_RIGHT_RED_ONE = 11,
+    TILE_BUILDING_LEFT_RED_THREE = 12,
+    TILE_BUILDING_LEFT_WHITE_ONE = 13,
+    TILE_BUILDING_RIGHT_YELLOW_FOUR = 14,
+    TILE_BUILDING_LEFT_WHITE_SIX = 15,
+    TILE_BUILDING_LEFT_BROWN_THREE = 16,
     TILE_COUNT
 } tile_id_t;
 
@@ -54,6 +56,8 @@ typedef struct
     sprite_t *base_tile;
     sprite_t *building_right_red_two;
     sprite_t *beton_sprite;
+    sprite_t *beton_red_sprite;
+    sprite_t *beton_yellow_sprite;
     sprite_t *building_right_red_one;
     sprite_t *building_left_red_three;
     sprite_t *building_left_white_one;

@@ -62,6 +62,9 @@ static void start_breaking_wall(wall_section_t *section, uint32_t now)
     game_map.tiles[section->y][section->x] = TILE_WALL_BREAKING;
 }
 
+/**
+ * @brief pick_intact_index: Pick an intact wall index with optional row limit.
+ */
 static int pick_intact_index(int max_row)
 {
     int pick = -1;
@@ -143,7 +146,10 @@ void dam_init(void)
     }
 
     if (wall_section_count > 0)
+    {
         wall_section_count--;
+        wall_intact_count--;
+    }
 
     uint32_t now = get_ticks();
     next_break_tick = now + TICKS_PER_SECOND;

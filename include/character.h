@@ -37,4 +37,10 @@ int character_get_active_player(void);
 // character_get_vehicle_sprite: Fetch vehicle sprite for color and direction.
 sprite_t *character_get_vehicle_sprite(int color_index, int dir);
 
+// character_set_full: Set whether a player is carrying concrete.
+void character_set_full(int index, bool full);
+
+// character_is_full: Return whether a player is carrying concrete.
+bool character_is_full(int index);
+
 #endif // __CHARACTER_H__

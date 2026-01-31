@@ -12,6 +12,8 @@
 #define __ TILE_NONE
 #define OO TILE_BASE
 #define BT TILE_BETON
+#define BR TILE_BETON_RED
+#define BY TILE_BETON_YELLOW
 #define B1 TILE_BUILDING_RIGHT_RED_TWO
 #define B2 TILE_BUILDING_RIGHT_RED_ONE
 #define B3 TILE_BUILDING_LEFT_RED_THREE
@@ -32,7 +34,7 @@ map_t game_map = {
     .tiles = {
         //        0   1   2   3   4   5   6   7   8   9  10  11  12  13  14  15  16  17  18  19  20  21  22  23  24  25  26
         /*  0 */ {__, __, __, __, __, __, __, __, __, __, __, __, __, __, __, OO, OO, OO, OO, __, __, __, __, __, __, __, __},
-        /*  1 */ {__, __, __, __, __, __, __, __, __, __, __, __, __, __, OO, BT, OO, OO, BT, OO, __, __, __, __, __, __, __},
+        /*  1 */ {__, __, __, __, __, __, __, __, __, __, __, __, __, __, OO, BR, OO, OO, BY, OO, __, __, __, __, __, __, __},
         /*  2 */ {__, __, __, __, __, __, __, __, __, __, __, __, __, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __},
         /*  3 */ {__, __, __, __, __, __, __, __, __, __, __, __, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __},
         /*  4 */ {__, __, __, __, __, __, __, __, __, __, __, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __},
@@ -92,6 +94,8 @@ map_t game_map = {
 #undef __
 #undef OO
 #undef BT
+#undef BR
+#undef BY
 #undef B1
 #undef B2
 #undef B3
@@ -111,6 +115,8 @@ static bool is_building_tile(int tile_id)
 {
     return tile_id == TILE_BUILDING_RIGHT_RED_TWO ||
            tile_id == TILE_BETON ||
+           tile_id == TILE_BETON_RED ||
+           tile_id == TILE_BETON_YELLOW ||
            tile_id == TILE_BUILDING_RIGHT_RED_ONE ||
            tile_id == TILE_BUILDING_LEFT_RED_THREE ||
            tile_id == TILE_BUILDING_LEFT_WHITE_ONE ||
@@ -130,6 +136,10 @@ static sprite_t *get_building_sprite(const map_render_t *render, int tile_id)
         return render->building_right_red_two;
     case TILE_BETON:
         return render->beton_sprite;
+    case TILE_BETON_RED:
+        return render->beton_red_sprite;
+    case TILE_BETON_YELLOW:
+        return render->beton_yellow_sprite;
     case TILE_BUILDING_RIGHT_RED_ONE:
         return render->building_right_red_one;
     case TILE_BUILDING_LEFT_RED_THREE:

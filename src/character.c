@@ -27,6 +27,7 @@ static int character_y[CHARACTER_COUNT] = {0};
 static int active_player = 0;
 static int char_facing[CHARACTER_COUNT] = {0};
 static int stored_cam_y = 0;
+static bool character_full[CHARACTER_COUNT] = {false, false};
 
 /**
  * @brief character_init: Load vehicle sprites and initialize character state.
@@ -59,6 +60,7 @@ void character_init(int base_x, int base_y, int offset_x, int offset_y, int cam_
         character_x[i] = base_x + i * offset_x;
         character_y[i] = base_y + i * offset_y;
         char_facing[i] = CAR_DIR_S;
+        character_full[i] = false;
     }
 }
 
@@ -94,6 +96,12 @@ static void character_move_player(int index, const control_t *keys, character_bl
         int step_y = 2;
         if (dir_x && dir_y)
             step_y = 1;
+
+        if (!character_full[index])
+        {
+            step_x += 1;
+            step_y += 1;
+        }
 
         int next_x = *player_x + dir_x * step_x;
         int next_y = *player_y + dir_y * step_y;
@@ -244,6 +252,22 @@ void character_get_position(int index, int *x, int *y)
 int character_get_active_player(void)
 {
     return active_player;
+}
+
+// character_set_full: Set whether a player is carrying concrete.
+void character_set_full(int index, bool full)
+{
+    if (index < 0 || index >= CHARACTER_COUNT)
+        return;
+    character_full[index] = full;
+}
+
+// character_is_full: Return whether a player is carrying concrete.
+bool character_is_full(int index)
+{
+    if (index < 0 || index >= CHARACTER_COUNT)
+        return false;
+    return character_full[index];
 }
 
 /**

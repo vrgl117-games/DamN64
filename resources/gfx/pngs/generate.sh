@@ -91,6 +91,24 @@ convert "$PNGS_DIR/extra_beton.png" \
         "${PNG_OPTS[@]}" \
         "$ROOT_DIR/resources/gfx/sprites/isometric-city/cityTiles_beton.png"
 
+convert "$PNGS_DIR/extra_beton.png" \
+        -resize 32x \
+        "${PNG_OPTS[@]}" \
+        "$ROOT_DIR/resources/gfx/sprites/isometric-city/cityTiles_beton_yellow.png"
+
+convert "$PNGS_DIR/extra_beton.png" \
+        -resize 32x \
+        -colorspace HSL \
+        -channel Hue -evaluate add -11% \
+        -channel ALL -colorspace sRGB \
+        "${PNG_OPTS[@]}" \
+        "$ROOT_DIR/resources/gfx/sprites/isometric-city/cityTiles_beton_red.png"
+
+convert "$PNGS_DIR/extra_beton_empty.png" \
+        -resize 32x \
+        "${PNG_OPTS[@]}" \
+        "$ROOT_DIR/resources/gfx/sprites/isometric-city/cityTiles_beton.png"
+
 convert "$PNGS_DIR/extra_water.png" \
         -resize 32x \
         "${PNG_OPTS[@]}" \
