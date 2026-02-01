@@ -20,6 +20,8 @@
 // Logical diamond footprint in screen space (not necessarily sprite size)
 #define ISO_W 32
 #define ISO_H 16
+#define SPAWN_OFFSET_X 42
+#define SPAWN_OFFSET_Y 42
 
 static sprite_t *base_tile = NULL;
 static sprite_t *building_right_red_two = NULL;
@@ -83,7 +85,7 @@ static int map_origin_y = 0;
 const color_t background = RGBA32(35, 54, 66, 255);
 
 // Maximum number of buildings we track for collision
-#define MAX_BUILDINGS 16
+#define MAX_BUILDINGS 42
 
 // Building collision uses 2 boxes in a T-shape to match isometric base
 typedef struct
@@ -515,8 +517,8 @@ void game_init(void)
 
     int center_x = MAP_WIDTH / 2;
     int center_y = MAP_HEIGHT / 2;
-    int base_x = map_origin_x + (center_x - center_y) * half_w + half_w;
-    int base_y = map_origin_y + (center_x + center_y) * half_h + half_h;
+    int base_x = map_origin_x + (center_x - center_y) * half_w + half_w + SPAWN_OFFSET_X;
+    int base_y = map_origin_y + (center_x + center_y) * half_h + half_h + SPAWN_OFFSET_Y;
 
     // Compute fixed vertical camera offset to center map on screen
     int screen_h = display_get_height();
