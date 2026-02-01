@@ -14,7 +14,7 @@
 
 #define ISO_H_HALF 8
 
-typedef bool (*character_block_fn)(int world_x, int world_y);
+typedef bool (*character_block_fn)(int world_x, int world_y, int index);
 
 // character_init: Load vehicle sprites and initialize character state.
 void character_init(int base_x, int base_y, int offset_x, int offset_y, int cam_y);
@@ -42,5 +42,8 @@ void character_set_full(int index, bool full);
 
 // character_is_full: Return whether a player is carrying concrete.
 bool character_is_full(int index);
+
+// character_get_collision_box: Get collision half-sizes and offset.
+void character_get_collision_box(int index, int *half_w, int *half_h, int *offset_y);
 
 #endif // __CHARACTER_H__

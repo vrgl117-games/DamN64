@@ -29,6 +29,16 @@ static int char_facing[CHARACTER_COUNT] = {0};
 static int stored_cam_y = 0;
 static bool character_full[CHARACTER_COUNT] = {false, false};
 
+#define COLLISION_UPDOWN_HALF_W 6
+#define COLLISION_UPDOWN_HALF_H 8
+#define COLLISION_UPDOWN_OFFSET_Y 1
+#define COLLISION_SIDE_HALF_W 9
+#define COLLISION_SIDE_HALF_H 8
+#define COLLISION_SIDE_OFFSET_Y 1
+#define COLLISION_DIAG_HALF_W 8
+#define COLLISION_DIAG_HALF_H 8
+#define COLLISION_DIAG_OFFSET_Y 2
+
 /**
  * @brief character_init: Load vehicle sprites and initialize character state.
  */
@@ -112,7 +122,7 @@ static void character_move_player(int index, const control_t *keys, character_bl
 
         if (is_blocked)
         {
-            blocked = is_blocked(next_x, next_y);
+            blocked = is_blocked(next_x, next_y, index);
         }
 
         if (!blocked)
@@ -150,6 +160,43 @@ static void character_move_player(int index, const control_t *keys, character_bl
                 *player_facing = CAR_DIR_E;
         }
     }
+}
+
+// character_get_collision_box: Get collision half-sizes and offset.
+void character_get_collision_box(int index, int *half_w, int *half_h, int *offset_y)
+{
+    if (index < 0 || index >= CHARACTER_COUNT)
+        return;
+
+    int dir = char_facing[index];
+    if (dir == CAR_DIR_N || dir == CAR_DIR_S)
+    {
+        if (half_w)
+            *half_w = COLLISION_UPDOWN_HALF_W;
+        if (half_h)
+            *half_h = COLLISION_UPDOWN_HALF_H;
+        if (offset_y)
+            *offset_y = COLLISION_UPDOWN_OFFSET_Y;
+        return;
+    }
+
+    if (dir == CAR_DIR_E || dir == CAR_DIR_W)
+    {
+        if (half_w)
+            *half_w = COLLISION_SIDE_HALF_W;
+        if (half_h)
+            *half_h = COLLISION_SIDE_HALF_H;
+        if (offset_y)
+            *offset_y = COLLISION_SIDE_OFFSET_Y;
+        return;
+    }
+
+    if (half_w)
+        *half_w = COLLISION_DIAG_HALF_W;
+    if (half_h)
+        *half_h = COLLISION_DIAG_HALF_H;
+    if (offset_y)
+        *offset_y = COLLISION_DIAG_OFFSET_Y;
 }
 
 /**

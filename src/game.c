@@ -294,7 +294,7 @@ static bool world_to_grid(int world_x, int world_y, int *grid_x, int *grid_y)
  * @brief is_blocked_position: Return true if a world position is blocked.
  * Uses bounding box collision against buildings.
  */
-static bool is_blocked_position(int world_x, int world_y)
+static bool is_blocked_position(int world_x, int world_y, int index)
 {
     int grid_x = 0;
     int grid_y = 0;
@@ -309,8 +309,13 @@ static bool is_blocked_position(int world_x, int world_y)
         return true;
 
     // Vehicle position with offset
+    int half_w = vehicle_half_w;
+    int half_h = vehicle_half_h;
+    int offset_y = vehicle_offset_y;
+    character_get_collision_box(index, &half_w, &half_h, &offset_y);
+
     int vx = world_x;
-    int vy = world_y + vehicle_offset_y;
+    int vy = world_y + offset_y;
 
     // Check collision against all building bounding boxes (2 boxes per building)
     for (int i = 0; i < building_count; i++)
@@ -325,8 +330,8 @@ static bool is_blocked_position(int world_x, int world_y)
         if (dy1 < 0)
             dy1 = -dy1;
 
-        int combined_hw1 = vehicle_half_w + b->box1_half_w;
-        int combined_hh1 = vehicle_half_h + b->box1_half_h;
+        int combined_hw1 = half_w + b->box1_half_w;
+        int combined_hh1 = half_h + b->box1_half_h;
 
         if (dx1 < combined_hw1 && dy1 < combined_hh1)
             return true;
@@ -339,8 +344,8 @@ static bool is_blocked_position(int world_x, int world_y)
         if (dy2 < 0)
             dy2 = -dy2;
 
-        int combined_hw2 = vehicle_half_w + b->box2_half_w;
-        int combined_hh2 = vehicle_half_h + b->box2_half_h;
+        int combined_hw2 = half_w + b->box2_half_w;
+        int combined_hh2 = half_h + b->box2_half_h;
 
         if (dx2 < combined_hw2 && dy2 < combined_hh2)
             return true;
@@ -392,21 +397,28 @@ static void draw_debug_collision(int current_cam_x)
                         screen_x2 + b->box2_half_w, screen_y2 + b->box2_half_h, building_color);
     }
 
-    // Draw active vehicle collision box (green)
+    // Draw vehicle collision boxes (green)
     color_t vehicle_color = RGBA32(0, 255, 0, 255);
-    int active = character_get_active_player();
-    int vx, vy;
-    character_get_position(active, &vx, &vy);
+    for (int i = 0; i < 2; i++)
+    {
+        int vx = 0;
+        int vy = 0;
+        int half_w = vehicle_half_w;
+        int half_h = vehicle_half_h;
+        int offset_y = vehicle_offset_y;
+        character_get_position(i, &vx, &vy);
+        character_get_collision_box(i, &half_w, &half_h, &offset_y);
 
-    int screen_x = vx - current_cam_x;
-    int screen_y = vy - cam_y + vehicle_offset_y; // Apply offset to move box lower
+        int screen_x = vx - current_cam_x;
+        int screen_y = vy - cam_y + offset_y;
 
-    int x1 = screen_x - vehicle_half_w;
-    int y1 = screen_y - vehicle_half_h;
-    int x2 = screen_x + vehicle_half_w;
-    int y2 = screen_y + vehicle_half_h;
+        int x1 = screen_x - half_w;
+        int y1 = screen_y - half_h;
+        int x2 = screen_x + half_w;
+        int y2 = screen_y + half_h;
 
-    draw_debug_rect(x1, y1, x2, y2, vehicle_color);
+        draw_debug_rect(x1, y1, x2, y2, vehicle_color);
+    }
 }
 
 /**
@@ -608,7 +620,7 @@ void game_init(void)
 
                 // Box 2: Bottom stem of the T (narrow, shorter)
                 building_boxes[building_count].box2_off_x = 0;
-                building_boxes[building_count].box2_off_y = 6;
+                building_boxes[building_count].box2_off_y = 5;
                 building_boxes[building_count].box2_half_w = 6;
                 building_boxes[building_count].box2_half_h = 2;
 
