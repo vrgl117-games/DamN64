@@ -252,6 +252,39 @@ void dam_draw_breach_bar(int screen_w)
 }
 
 /**
+ * @brief dam_repair_wall: Restore a broken wall section to intact.
+ */
+void dam_repair_wall(int grid_x, int grid_y)
+{
+    for (int i = 0; i < wall_section_count; i++)
+    {
+        wall_section_t *section = &wall_sections[i];
+        if (section->x != grid_x || section->y != grid_y)
+            continue;
+
+        if (section->state == WALL_INTACT)
+            return;
+
+        if (section->state == WALL_BROKEN && broken_section_count > 0)
+            broken_section_count--;
+
+        section->state = WALL_INTACT;
+        section->blink_tick = 0;
+        section->end_tick = 0;
+        section->blink_on = true;
+
+        if (wall_intact_count < MAX_WALL_TILES)
+        {
+            wall_intact_indices[wall_intact_count] = i;
+            wall_intact_count++;
+        }
+
+        game_map.tiles[grid_y][grid_x] = TILE_WALL;
+        return;
+    }
+}
+
+/**
  * @brief dam_get_broken_sections: Return number of broken wall sections.
  */
 int dam_get_broken_sections(void)

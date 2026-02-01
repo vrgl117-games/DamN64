@@ -109,6 +109,8 @@ static int vehicle_half_w = 7;   // Width
 static int vehicle_half_h = 6;   // Height
 static int vehicle_offset_y = 2; // Offset to move box lower
 
+#define PLANT_REFILL_SECONDS 8
+
 static bool plant_ready_y = true;
 static bool plant_ready_r = true;
 static int plant_y_x = -1;
@@ -168,6 +170,34 @@ static void update_truck_full(void)
 }
 
 /**
+ * @brief update_truck_repair: Repair broken walls when trucks are full.
+ */
+static void update_truck_repair(void)
+{
+    for (int i = 0; i < 2; i++)
+    {
+        if (!character_is_full(i))
+            continue;
+
+        int wx = 0;
+        int wy = 0;
+        int gx = 0;
+        int gy = 0;
+
+        character_get_position(i, &wx, &wy);
+        if (!world_to_grid(wx, wy, &gx, &gy))
+            continue;
+
+        int tile = game_map.tiles[gy][gx];
+        if (tile == TILE_BROKEN_WALL || tile == TILE_WALL_BREAKING)
+        {
+            dam_repair_wall(gx, gy);
+            character_set_full(i, false);
+        }
+    }
+}
+
+/**
  * @brief in_bounds: Check if a tile coordinate is inside the map.
  */
 static bool in_bounds(int x, int y)
@@ -183,14 +213,14 @@ static void update_plant_tiles(void)
     uint32_t now = get_ticks();
 
     if (!plant_ready_y && plant_y_empty_tick > 0 &&
-        now - plant_y_empty_tick >= 5 * TICKS_PER_SECOND)
+        now - plant_y_empty_tick >= PLANT_REFILL_SECONDS * TICKS_PER_SECOND)
     {
         plant_ready_y = true;
         plant_y_empty_tick = 0;
     }
 
     if (!plant_ready_r && plant_r_empty_tick > 0 &&
-        now - plant_r_empty_tick >= 5 * TICKS_PER_SECOND)
+        now - plant_r_empty_tick >= PLANT_REFILL_SECONDS * TICKS_PER_SECOND)
     {
         plant_ready_r = true;
         plant_r_empty_tick = 0;
@@ -268,10 +298,9 @@ static bool is_blocked_position(int world_x, int world_y)
     if (!world_to_grid(world_x, world_y, &grid_x, &grid_y))
         return true;
 
-    // TILE_NONE = blocked (void/water/waves/walls)
+    // TILE_NONE = blocked (void/water/waves)
     int tile = game_map.tiles[grid_y][grid_x];
-    if (tile == TILE_NONE || tile == TILE_WATER || tile == TILE_WAVES ||
-        tile == TILE_WALL || tile == TILE_WALL_BREAKING || tile == TILE_BROKEN_WALL)
+    if (tile == TILE_NONE || tile == TILE_WATER || tile == TILE_WAVES)
         return true;
 
     // Vehicle position with offset
@@ -607,6 +636,7 @@ void game_update(control_t *keys[2])
     update_music_track();
     character_update(player_keys, is_blocked_position);
     update_truck_full();
+    update_truck_repair();
     if (keys[0] && keys[0]->rumble && pause_get_rumble_on())
     {
         joypad_set_rumble_active(JOYPAD_PORT_1, rumble_ticks[0] > 0);
