@@ -109,6 +109,16 @@ convert "$PNGS_DIR/extra_beton_empty.png" \
         "${PNG_OPTS[@]}" \
         "$ROOT_DIR/resources/gfx/sprites/isometric-city/cityTiles_beton.png"
 
+convert "$PNGS_DIR/extra_broken_wall_water.png" \
+        -resize 32x \
+        "${PNG_OPTS[@]}" \
+        "$ROOT_DIR/resources/gfx/sprites/isometric-city/cityTiles_broken_wall_water.png"
+
+convert "$PNGS_DIR/extra_wall_water.png" \
+        -resize 32x \
+        "${PNG_OPTS[@]}" \
+        "$ROOT_DIR/resources/gfx/sprites/isometric-city/cityTiles_wall_water.png"
+
 convert "$PNGS_DIR/extra_water.png" \
         -resize 32x \
         "${PNG_OPTS[@]}" \

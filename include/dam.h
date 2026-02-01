@@ -16,5 +16,6 @@ void dam_update(void);
 int dam_get_broken_sections(void);
 void dam_draw_breach_bar(int screen_w);
 void dam_repair_wall(int grid_x, int grid_y);
+bool dam_is_spreading(void);
 
 #endif //__DAM_H__

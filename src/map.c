@@ -28,6 +28,7 @@
 #define WB TILE_WAVES_BOAT
 #define WL TILE_WALL
 #define BW TILE_BROKEN_WALL
+#define BWW TILE_BROKEN_WALL_WATER
 
 // Diamond-shaped map for horizontal scrolling
 // Buildings are placed directly in the tiles array (no separate layer)
@@ -112,6 +113,7 @@ map_t game_map = {0};
 #undef WV
 #undef WL
 #undef BW
+#undef BWW
 
 // map_reset: Restore the map to its initial state.
 void map_reset(void)

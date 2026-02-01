@@ -37,6 +37,8 @@ static sprite_t *waves_tile = NULL;
 static sprite_t *waves_boat_tile = NULL;
 static sprite_t *wall_tile = NULL;
 static sprite_t *broken_wall_tile = NULL;
+static sprite_t *broken_wall_water_tile = NULL;
+static sprite_t *wall_water_tile = NULL;
 static map_render_t map_render = {0};
 
 // Split-screen configuration
@@ -190,7 +192,7 @@ static void update_truck_repair(void)
             continue;
 
         int tile = game_map.tiles[gy][gx];
-        if (tile == TILE_BROKEN_WALL || tile == TILE_WALL_BREAKING)
+        if (tile == TILE_BROKEN_WALL || tile == TILE_BROKEN_WALL_WATER)
         {
             dam_repair_wall(gx, gy);
             character_set_full(i, false);
@@ -301,7 +303,7 @@ static bool is_blocked_position(int world_x, int world_y)
 
     // TILE_NONE = blocked (void/water/waves)
     int tile = game_map.tiles[grid_y][grid_x];
-    if (tile == TILE_NONE || tile == TILE_WATER || tile == TILE_WAVES || tile == TILE_WAVES_BOAT)
+    if (tile == TILE_NONE || tile == TILE_WAVES || tile == TILE_WAVES_BOAT)
         return true;
 
     // Vehicle position with offset
@@ -469,14 +471,17 @@ void game_init(void)
     waves_boat_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water_waves_boat.sprite");
     wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall.sprite");
     broken_wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall.sprite");
+    broken_wall_water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall_water.sprite");
+    wall_water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall_water.sprite");
 
     map_render.tile_sprites[TILE_NONE] = NULL;
     map_render.tile_sprites[TILE_BASE] = base_tile;
     map_render.tile_sprites[TILE_BUILDING_RIGHT_RED_TWO] = building_right_red_two;
     map_render.tile_sprites[TILE_WATER] = water_tile;
     map_render.tile_sprites[TILE_WALL] = wall_tile;
-    map_render.tile_sprites[TILE_WALL_BREAKING] = wall_tile;
     map_render.tile_sprites[TILE_BROKEN_WALL] = broken_wall_tile;
+    map_render.tile_sprites[TILE_BROKEN_WALL_WATER] = broken_wall_water_tile;
+    map_render.tile_sprites[TILE_WALL_WATER] = wall_water_tile;
     map_render.tile_sprites[TILE_WAVES] = waves_tile;
     map_render.tile_sprites[TILE_WAVES_BOAT] = waves_boat_tile;
     map_render.tile_sprites[TILE_BETON] = beton_sprite;
@@ -642,6 +647,13 @@ void game_update(control_t *keys[2])
     character_update(player_keys, is_blocked_position);
     update_truck_full();
     update_truck_repair();
+    if (dam_is_spreading())
+    {
+        if (keys[0] && keys[0]->rumble && pause_get_rumble_on())
+            rumble_ticks[0] = 1;
+        if (keys[1] && keys[1]->rumble && pause_get_rumble_on())
+            rumble_ticks[1] = 1;
+    }
     if (keys[0] && keys[0]->rumble && pause_get_rumble_on())
     {
         joypad_set_rumble_active(JOYPAD_PORT_1, rumble_ticks[0] > 0);

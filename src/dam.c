@@ -36,11 +36,29 @@ typedef struct
     bool blink_on;
 } wall_section_t;
 
+typedef struct
+{
+    int x;
+    int y;
+    int offset;
+    bool active;
+    int kind;
+} wall_spread_t;
+
+typedef enum
+{
+    SPREAD_WALL_WATER = 0,
+    SPREAD_WALL_DRY = 1,
+    SPREAD_BASE_WATER = 2,
+    SPREAD_BASE_DRY = 3
+} spread_kind_t;
+
 #define MAX_WALL_TILES 10
 #define MIN_BREAK_INTERVAL_SECONDS 10
 #define BREAKING_DURATION_SECONDS 3
 #define BREAKING_BLINK_TICKS (TICKS_PER_SECOND / 2)
 #define TOP_ROW_LIMIT 13
+#define MAX_WATER_SPREAD 8
 
 static wall_section_t wall_sections[MAX_WALL_TILES];
 static int wall_section_count = 0;
@@ -50,6 +68,11 @@ static int broken_section_count = 0;
 static uint32_t next_break_tick = 0;
 static int break_step = 0;
 static int breaking_section_count = 0;
+static wall_spread_t water_spreads[MAX_WATER_SPREAD];
+static bool spreading_active = false;
+
+static void update_water_spread(void);
+static void start_spread(spread_kind_t kind, int x, int y);
 
 /**
  * @brief start_breaking_wall: Set a wall section to breaking state.
@@ -60,7 +83,10 @@ static void start_breaking_wall(wall_section_t *section, uint32_t now)
     section->blink_on = true;
     section->blink_tick = now + BREAKING_BLINK_TICKS;
     section->end_tick = now + (BREAKING_DURATION_SECONDS * TICKS_PER_SECOND);
-    game_map.tiles[section->y][section->x] = TILE_WALL_BREAKING;
+    if (game_map.tiles[section->y][section->x] == TILE_WALL_WATER)
+        game_map.tiles[section->y][section->x] = TILE_BROKEN_WALL_WATER;
+    else
+        game_map.tiles[section->y][section->x] = TILE_BROKEN_WALL;
 }
 
 /**
@@ -109,6 +135,84 @@ static void start_breaking_random_walls(int count, int max_row, uint32_t now)
     }
 }
 
+static void start_spread(spread_kind_t kind, int x, int y)
+{
+    for (int i = 0; i < MAX_WATER_SPREAD; i++)
+    {
+        if (!water_spreads[i].active)
+        {
+            water_spreads[i].active = true;
+            water_spreads[i].kind = kind;
+            water_spreads[i].x = x;
+            water_spreads[i].y = y;
+            water_spreads[i].offset = 1;
+            return;
+        }
+    }
+}
+
+static void update_water_spread(void)
+{
+    spreading_active = false;
+    for (int i = 0; i < MAX_WATER_SPREAD; i++)
+    {
+        wall_spread_t *spread = &water_spreads[i];
+        if (!spread->active)
+            continue;
+
+        spreading_active = true;
+
+        int up_y = spread->y - spread->offset;
+        int down_y = spread->y + spread->offset;
+        bool up_ok = (up_y >= 0);
+        bool down_ok = (down_y < MAP_HEIGHT);
+
+        int up_tile = up_ok ? game_map.tiles[up_y][spread->x] : TILE_NONE;
+        int down_tile = down_ok ? game_map.tiles[down_y][spread->x] : TILE_NONE;
+
+        switch ((spread_kind_t)spread->kind)
+        {
+        case SPREAD_WALL_WATER:
+            if (up_ok && up_tile == TILE_WALL)
+                game_map.tiles[up_y][spread->x] = TILE_WALL_WATER;
+            if (down_ok && down_tile == TILE_WALL)
+                game_map.tiles[down_y][spread->x] = TILE_WALL_WATER;
+            break;
+        case SPREAD_WALL_DRY:
+            if (up_ok && up_tile == TILE_WALL_WATER)
+                game_map.tiles[up_y][spread->x] = TILE_WALL;
+            if (down_ok && down_tile == TILE_WALL_WATER)
+                game_map.tiles[down_y][spread->x] = TILE_WALL;
+            break;
+        case SPREAD_BASE_WATER:
+            if (up_ok && up_tile == TILE_BASE)
+                game_map.tiles[up_y][spread->x] = TILE_WATER;
+            if (down_ok && down_tile == TILE_BASE)
+                game_map.tiles[down_y][spread->x] = TILE_WATER;
+            break;
+        case SPREAD_BASE_DRY:
+            if (up_ok && up_tile == TILE_WATER)
+                game_map.tiles[up_y][spread->x] = TILE_BASE;
+            if (down_ok && down_tile == TILE_WATER)
+                game_map.tiles[down_y][spread->x] = TILE_BASE;
+            break;
+        default:
+            break;
+        }
+
+        spread->offset++;
+
+        if (!up_ok && !down_ok)
+            spread->active = false;
+    }
+}
+
+// dam_is_spreading: Return true if any water spread is active.
+bool dam_is_spreading(void)
+{
+    return spreading_active;
+}
+
 /**
  * @brief dam_init: Build wall list and schedule first break.
  */
@@ -116,11 +220,13 @@ void dam_init(void)
 {
     memset(wall_sections, 0, sizeof(wall_sections));
     memset(wall_intact_indices, 0, sizeof(wall_intact_indices));
+    memset(water_spreads, 0, sizeof(water_spreads));
     wall_section_count = 0;
     wall_intact_count = 0;
     broken_section_count = 0;
     break_step = 0;
     bool skipped_first = false;
+    spreading_active = false;
 
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
@@ -167,9 +273,17 @@ void dam_update(void)
     uint32_t now = get_ticks();
     breaking_section_count = 0;
 
+    update_water_spread();
+
     for (int i = 0; i < wall_section_count; i++)
     {
         wall_section_t *section = &wall_sections[i];
+
+        if (section->state == WALL_BROKEN)
+        {
+            game_map.tiles[section->y][section->x] = TILE_BROKEN_WALL_WATER;
+            continue;
+        }
 
         if (section->state != WALL_BREAKING)
             continue;
@@ -178,16 +292,27 @@ void dam_update(void)
 
         if (now >= section->end_tick)
         {
+            int prev_broken = broken_section_count;
             section->state = WALL_BROKEN;
-            game_map.tiles[section->y][section->x] = TILE_BROKEN_WALL;
             broken_section_count++;
+            if (prev_broken == 0)
+                start_spread(SPREAD_WALL_WATER, section->x, section->y);
+            if (prev_broken == 1)
+            {
+                game_map.tiles[section->y][section->x + 1] = TILE_WATER;
+                start_spread(SPREAD_BASE_WATER, section->x + 1, section->y);
+            }
             continue;
         }
 
         if (now >= section->blink_tick)
         {
+            bool flooded = (game_map.tiles[section->y][section->x] == TILE_WALL_WATER ||
+                            game_map.tiles[section->y][section->x] == TILE_BROKEN_WALL_WATER);
+            int base_tile = flooded ? TILE_WALL_WATER : TILE_WALL;
+            int broken_tile = flooded ? TILE_BROKEN_WALL_WATER : TILE_BROKEN_WALL;
             section->blink_on = !section->blink_on;
-            game_map.tiles[section->y][section->x] = section->blink_on ? TILE_WALL_BREAKING : TILE_BROKEN_WALL;
+            game_map.tiles[section->y][section->x] = section->blink_on ? base_tile : broken_tile;
             section->blink_tick += BREAKING_BLINK_TICKS;
         }
     }
@@ -269,6 +394,7 @@ void dam_repair_wall(int grid_x, int grid_y)
         if (section->state == WALL_INTACT)
             return;
 
+        int prev_broken = broken_section_count;
         if (section->state == WALL_BROKEN && broken_section_count > 0)
             broken_section_count--;
 
@@ -283,7 +409,17 @@ void dam_repair_wall(int grid_x, int grid_y)
             wall_intact_count++;
         }
 
-        game_map.tiles[grid_y][grid_x] = TILE_WALL;
+        if (prev_broken == 2 && broken_section_count == 1)
+        {
+            game_map.tiles[grid_y][grid_x] = TILE_WALL_WATER;
+            game_map.tiles[grid_y][grid_x + 1] = TILE_BASE;
+            start_spread(SPREAD_BASE_DRY, grid_x + 1, grid_y);
+        }
+        if (prev_broken == 1 && broken_section_count == 0)
+        {
+            game_map.tiles[grid_y][grid_x] = TILE_WALL;
+            start_spread(SPREAD_WALL_DRY, grid_x, grid_y);
+        }
         return;
     }
 }
