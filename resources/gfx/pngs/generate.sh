@@ -119,6 +119,11 @@ convert "$PNGS_DIR/extra_water_waves.png" \
         "${PNG_OPTS[@]}" \
         "$ROOT_DIR/resources/gfx/sprites/isometric-city/cityTiles_water_waves.png"
 
+convert "$PNGS_DIR/extra_water_waves_boat.png" \
+        -resize 32x \
+        "${PNG_OPTS[@]}" \
+        "$ROOT_DIR/resources/gfx/sprites/isometric-city/cityTiles_water_waves_boat.png"
+
 # vehicles
 for f in "$PNGS_DIR"/garbage_*.png; do
   base=$(basename "$f")

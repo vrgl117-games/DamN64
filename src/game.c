@@ -34,6 +34,7 @@ static sprite_t *building_left_white_six = NULL;
 static sprite_t *building_left_brown_three = NULL;
 static sprite_t *water_tile = NULL;
 static sprite_t *waves_tile = NULL;
+static sprite_t *waves_boat_tile = NULL;
 static sprite_t *wall_tile = NULL;
 static sprite_t *broken_wall_tile = NULL;
 static map_render_t map_render = {0};
@@ -300,7 +301,7 @@ static bool is_blocked_position(int world_x, int world_y)
 
     // TILE_NONE = blocked (void/water/waves)
     int tile = game_map.tiles[grid_y][grid_x];
-    if (tile == TILE_NONE || tile == TILE_WATER || tile == TILE_WAVES)
+    if (tile == TILE_NONE || tile == TILE_WATER || tile == TILE_WAVES || tile == TILE_WAVES_BOAT)
         return true;
 
     // Vehicle position with offset
@@ -465,6 +466,7 @@ void game_init(void)
     building_left_brown_three = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_brown_three.sprite");
     water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water.sprite");
     waves_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water_waves.sprite");
+    waves_boat_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water_waves_boat.sprite");
     wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall.sprite");
     broken_wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall.sprite");
 
@@ -476,6 +478,7 @@ void game_init(void)
     map_render.tile_sprites[TILE_WALL_BREAKING] = wall_tile;
     map_render.tile_sprites[TILE_BROKEN_WALL] = broken_wall_tile;
     map_render.tile_sprites[TILE_WAVES] = waves_tile;
+    map_render.tile_sprites[TILE_WAVES_BOAT] = waves_boat_tile;
     map_render.tile_sprites[TILE_BETON] = beton_sprite;
     map_render.tile_sprites[TILE_BETON_RED] = beton_red_sprite;
     map_render.tile_sprites[TILE_BETON_YELLOW] = beton_yellow_sprite;
@@ -522,6 +525,7 @@ void game_init(void)
     map_render.cam_y = cam_y;
     map_render.base_tile = base_tile;
     map_render.building_right_red_two = building_right_red_two;
+    map_render.waves_boat_tile = waves_boat_tile;
     map_render.beton_sprite = beton_sprite;
     map_render.beton_red_sprite = beton_red_sprite;
     map_render.beton_yellow_sprite = beton_yellow_sprite;

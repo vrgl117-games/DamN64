@@ -192,19 +192,20 @@ void dam_update(void)
         }
     }
 
+    if (breaking_section_count > 0)
+        return;
+
     if (wall_intact_count <= 0)
         return;
 
-    while (now >= next_break_tick && wall_intact_count > 0)
+    if (now >= next_break_tick && wall_intact_count > 0)
     {
         int interval_index = break_step / 2;
         int interval_seconds = 20 - (interval_index * 5);
         if (interval_seconds < MIN_BREAK_INTERVAL_SECONDS)
             interval_seconds = MIN_BREAK_INTERVAL_SECONDS;
 
-        int break_count = 1 + ((break_step - 1) / 2);
-        if (break_count < 1)
-            break_count = 1;
+        int break_count = 1;
 
         if (break_step == 0)
             start_breaking_random_walls(break_count, TOP_ROW_LIMIT, now);
@@ -212,7 +213,7 @@ void dam_update(void)
             start_breaking_random_walls(break_count, -1, now);
 
         break_step++;
-        next_break_tick += interval_seconds * TICKS_PER_SECOND;
+        next_break_tick = now + (interval_seconds * TICKS_PER_SECOND);
     }
 }
 

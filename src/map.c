@@ -25,6 +25,7 @@
 #define B7 TILE_BUILDING_LEFT_BROWN_THREE
 #define WR TILE_WAVES
 #define WV TILE_WAVES
+#define WB TILE_WAVES_BOAT
 #define WL TILE_WALL
 #define BW TILE_BROKEN_WALL
 
@@ -49,12 +50,12 @@ static const map_t base_map = {
         /* 11 */ {__, __, __, __, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, B7, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO},
         /* 12 */ {__, __, __, WR, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, B2, OO, OO, OO, OO, __},
         /* 13 */ {__, __, WV, WR, WV, WR, WR, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __},
-        /* 14 */ {__, WR, WV, WR, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __},
+        /* 14 */ {__, WR, WB, WR, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __},
         /* 15 */ {WV, WR, WR, WV, WR, WV, WR, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __},
-        /* 16 */ {WR, WV, WR, WR, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, B5, OO, OO, OO, OO, OO, __, __, __, __, __},
+        /* 16 */ {WR, WV, WR, WR, WB, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, B5, OO, OO, OO, OO, OO, __, __, __, __, __},
         /* 17 */ {WV, WR, WV, WR, WR, WV, WR, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __},
         /* 18 */ {WR, WV, WR, WV, WR, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __, __},
-        /* 19 */ {__, WR, WV, WR, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, B1, OO, OO, OO, OO, __, __, __, __, __, __, __, __},
+        /* 19 */ {__, WR, WV, WB, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, B1, OO, OO, OO, OO, __, __, __, __, __, __, __, __},
         /* 20 */ {__, __, WV, WR, WV, WR, WR, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __, __, __, __},
         /* 21 */ {__, __, __, WR, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __, __, __, __, __},
         /* 22 */ {__, __, __, __, WV, WR, WV, WL, OO, OO, OO, OO, OO, OO, OO, OO, __, __, __, __, __, __, __, __, __, __, __},
