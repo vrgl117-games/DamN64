@@ -9,6 +9,8 @@
 #include "map.h"
 #include "rdpq.h"
 
+#include <string.h>
+
 #define __ TILE_NONE
 #define OO TILE_BASE
 #define BT TILE_BETON
@@ -28,7 +30,7 @@
 
 // Diamond-shaped map for horizontal scrolling
 // Buildings are placed directly in the tiles array (no separate layer)
-map_t game_map = {
+static const map_t base_map = {
     .width = MAP_WIDTH,
     .height = MAP_HEIGHT,
     .tiles = {
@@ -91,6 +93,8 @@ map_t game_map = {
         8,
     }};
 
+map_t game_map = {0};
+
 #undef __
 #undef OO
 #undef BT
@@ -107,6 +111,12 @@ map_t game_map = {
 #undef WV
 #undef WL
 #undef BW
+
+// map_reset: Restore the map to its initial state.
+void map_reset(void)
+{
+    memcpy(&game_map, &base_map, sizeof(map_t));
+}
 
 /**
  * @brief is_building_tile: Return true if tile draws in building pass.

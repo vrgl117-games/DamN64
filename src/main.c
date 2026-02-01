@@ -72,7 +72,18 @@ int main()
                 screen = game;
             break;
         case game: // main game loop
-            screen_game(disp, keys);
+            if (screen_game(disp, keys))
+                screen = game_over;
+            break;
+        case game_over:
+            screen_game_over(disp, keys);
+            if (keys[0]->start || keys[0]->A || keys[0]->B)
+            {
+                pause_init();
+                game_init();
+                screen = title;
+            }
+            break;
         }
 
         fps_tick();

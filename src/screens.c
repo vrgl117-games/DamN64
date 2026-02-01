@@ -202,14 +202,53 @@ void screen_story(display_context_t disp, control_t *keys[2])
 }
 
 // screen_game: Update and render the game screen.
-void screen_game(display_context_t disp, control_t *keys[2])
+bool screen_game(display_context_t disp, control_t *keys[2])
 {
     pause_handle_input(keys);
     if (pause_is_active())
+    {
         pause_draw(disp);
+        return false;
+    }
     else
     {
         game_update(keys);
         game_draw(disp);
+        if (game_get_broken_sections() >= 3)
+            return true;
     }
+
+    return false;
+}
+
+// screen_game_over: Render game over screen.
+void screen_game_over(display_context_t disp, control_t *keys[2])
+{
+    const char *title = "GAME OVER";
+    const char *line = "The city flooded...";
+    const char *prompt = "Restart";
+    int screen_w = display_get_width();
+
+    (void)keys;
+
+    if (pause_get_music_on())
+    {
+        bgm_set_track(BGM_TRACK_YOULOSE);
+        bgm_play();
+    }
+    else
+    {
+        bgm_mute();
+    }
+
+    rdpq_attach(disp, NULL);
+    rdpq_clear(background);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL_SQUARE, 0, display_get_height() / 4, title);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, display_get_height() / 2, line);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, 220, prompt);
+    fps_draw();
+    rdpq_detach_show();
 }

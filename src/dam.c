@@ -11,6 +11,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 #include <stdlib.h>
+#include <string.h>
 
 #include <libdragon.h>
 
@@ -113,6 +114,8 @@ static void start_breaking_random_walls(int count, int max_row, uint32_t now)
  */
 void dam_init(void)
 {
+    memset(wall_sections, 0, sizeof(wall_sections));
+    memset(wall_intact_indices, 0, sizeof(wall_intact_indices));
     wall_section_count = 0;
     wall_intact_count = 0;
     broken_section_count = 0;

@@ -14,7 +14,8 @@ typedef enum
     BGM_TRACK_INTRO_PAUSE = 0,
     BGM_TRACK_JOY = 1,
     BGM_TRACK_WEIRD = 2,
-    BGM_TRACK_WEIRD2 = 3
+    BGM_TRACK_WEIRD2 = 3,
+    BGM_TRACK_YOULOSE = 4
 } bgm_track_t;
 
 void bgm_init();

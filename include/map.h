@@ -68,6 +68,8 @@ typedef struct
 
 extern map_t game_map;
 
+void map_reset(void);
+
 void map_draw(const map_t *map, const map_render_t *render, int cam_x, int view_width);
 void map_draw_buildings(const map_t *map, const map_render_t *render, int cam_x, int view_width);
 

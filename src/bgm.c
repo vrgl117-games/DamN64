@@ -41,6 +41,8 @@ static const char *bgm_track_path(bgm_track_t track)
             return "rom:/sfx/bgms/DamN64_weird_LITE_22k.wav64";
         case BGM_TRACK_WEIRD2:
             return "rom:/sfx/bgms/DamN64_weird2_LITE_22k.wav64";
+        case BGM_TRACK_YOULOSE:
+            return "rom:/sfx/bgms/DamN64_youlose_LITE_22k.wav64";
         case BGM_TRACK_INTRO_PAUSE:
         default:
             return "rom:/sfx/bgms/DamN64_intro_pause_screen_22k.wav64";

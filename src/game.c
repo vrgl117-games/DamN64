@@ -451,6 +451,7 @@ void game_draw_title_background(int screen_w, int screen_h)
  */
 void game_init(void)
 {
+    map_reset();
     base_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_base.sprite");
     building_right_red_two = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_two.sprite");
     beton_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton.sprite");
@@ -804,4 +805,10 @@ void game_draw(display_context_t disp)
 
     fps_draw();
     rdpq_detach_show();
+}
+
+// game_get_broken_sections: Return number of broken wall sections.
+int game_get_broken_sections(void)
+{
+    return dam_get_broken_sections();
 }

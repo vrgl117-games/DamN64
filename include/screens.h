@@ -17,6 +17,7 @@ typedef enum screens
     title,
     story,
     game,
+    game_over,
 } screen_t;
 
 void screen_init();
@@ -24,6 +25,7 @@ bool screen_intro(display_context_t disp);
 void screen_timer_title();
 void screen_title(display_context_t disp);
 void screen_story(display_context_t disp, control_t *keys[2]);
-void screen_game(display_context_t disp, control_t *keys[2]);
+bool screen_game(display_context_t disp, control_t *keys[2]);
+void screen_game_over(display_context_t disp, control_t *keys[2]);
 
 #endif //__SCREENS_H__
