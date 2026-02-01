@@ -14,6 +14,7 @@
 #include "character.h"
 #include "dam.h"
 #include "pause.h"
+#include "bgm.h"
 #include "fps.h"
 #include "font.h"
 // Logical diamond footprint in screen space (not necessarily sprite size)
@@ -120,6 +121,7 @@ static int rumble_ticks[2] = {0, 0};
 
 static bool world_to_grid(int world_x, int world_y, int *grid_x, int *grid_y);
 static void update_plant_tiles(void);
+static void update_music_track(void);
 
 /**
  * @brief update_truck_full: Set full state when driving below beton.
@@ -203,6 +205,28 @@ static void update_plant_tiles(void)
     {
         game_map.tiles[plant_r_y][plant_r_x] = plant_ready_r ? TILE_BETON_RED : TILE_BETON;
     }
+}
+
+/**
+ * @brief update_music_track: Switch game music based on dam state.
+ */
+static void update_music_track(void)
+{
+    if (!pause_get_music_on())
+    {
+        bgm_mute();
+        return;
+    }
+
+    int broken = dam_get_broken_sections();
+    if (broken >= 2)
+        bgm_set_track(BGM_TRACK_WEIRD2);
+    else if (broken >= 1)
+        bgm_set_track(BGM_TRACK_WEIRD);
+    else
+        bgm_set_track(BGM_TRACK_JOY);
+
+    bgm_play();
 }
 
 /**
@@ -580,6 +604,7 @@ void game_update(control_t *keys[2])
         debug_enabled = !debug_enabled;
 
     dam_update();
+    update_music_track();
     character_update(player_keys, is_blocked_position);
     update_truck_full();
     if (keys[0] && keys[0]->rumble && pause_get_rumble_on())

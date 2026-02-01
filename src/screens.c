@@ -109,6 +109,16 @@ void screen_title(display_context_t disp)
     int title_y = screen_h / 4;
     int prompt_y = title_y + (screen_h * 13) / 24;
 
+    if (pause_get_music_on())
+    {
+        bgm_set_track(BGM_TRACK_INTRO_PAUSE);
+        bgm_play();
+    }
+    else
+    {
+        bgm_mute();
+    }
+
     title_update(screen_w);
 
     rdpq_attach(disp, NULL);
@@ -136,6 +146,16 @@ void screen_story(display_context_t disp, control_t *keys[2])
     int screen_w = display_get_width();
 
     (void)keys;
+
+    if (pause_get_music_on())
+    {
+        bgm_set_track(BGM_TRACK_JOY);
+        bgm_play();
+    }
+    else
+    {
+        bgm_mute();
+    }
 
     sprite_t *beton_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton.sprite");
     sprite_t *broken_wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall.sprite");

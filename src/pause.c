@@ -92,6 +92,30 @@ void pause_handle_input(control_t *keys[2])
     if (p1->start)
     {
         toggle_pause();
+        if (pause_active)
+        {
+            if (music_on)
+            {
+                bgm_set_track(BGM_TRACK_INTRO_PAUSE);
+                bgm_pause();
+            }
+            else
+            {
+                bgm_mute();
+            }
+        }
+        else
+        {
+            if (music_on)
+            {
+                bgm_set_track(BGM_TRACK_JOY);
+                bgm_play();
+            }
+            else
+            {
+                bgm_mute();
+            }
+        }
         prev_direction = p1->direction;
         return;
     }
@@ -121,9 +145,14 @@ void pause_handle_input(control_t *keys[2])
         {
             music_on = !music_on;
             if (music_on)
-                bgm_play();
+            {
+                bgm_set_track(BGM_TRACK_INTRO_PAUSE);
+                bgm_pause();
+            }
             else
+            {
                 bgm_mute();
+            }
         }
         else if (selected_row == PAUSE_ROW_RUMBLE)
         {
