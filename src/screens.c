@@ -12,6 +12,7 @@
 #include "fps.h"
 #include "font.h"
 #include "game.h"
+#include "pause.h"
 #include "rdpq.h"
 #include "sprite.h"
 #include "title.h"
@@ -183,6 +184,12 @@ void screen_story(display_context_t disp, control_t *keys[2])
 // screen_game: Update and render the game screen.
 void screen_game(display_context_t disp, control_t *keys[2])
 {
-    game_update(keys);
-    game_draw(disp);
+    pause_handle_input(keys);
+    if (pause_is_active())
+        pause_draw(disp);
+    else
+    {
+        game_update(keys);
+        game_draw(disp);
+    }
 }

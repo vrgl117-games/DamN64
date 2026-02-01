@@ -13,6 +13,7 @@
 #include "sprite.h"
 #include "character.h"
 #include "dam.h"
+#include "pause.h"
 #include "fps.h"
 #include "font.h"
 // Logical diamond footprint in screen space (not necessarily sprite size)
@@ -581,11 +582,11 @@ void game_update(control_t *keys[2])
     dam_update();
     character_update(player_keys, is_blocked_position);
     update_truck_full();
-    if (keys[0] && keys[0]->rumble)
+    if (keys[0] && keys[0]->rumble && pause_get_rumble_on())
     {
         joypad_set_rumble_active(JOYPAD_PORT_1, rumble_ticks[0] > 0);
     }
-    if (keys[1] && keys[1]->rumble)
+    if (keys[1] && keys[1]->rumble && pause_get_rumble_on())
     {
         joypad_set_rumble_active(JOYPAD_PORT_2, rumble_ticks[1] > 0);
     }

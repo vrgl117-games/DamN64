@@ -13,6 +13,7 @@
 #include "fps.h"
 #include "font.h"
 #include "game.h"
+#include "pause.h"
 #include "screens.h"
 
 screen_t screen = game;
@@ -31,6 +32,7 @@ int main()
     joypad_init();
     timer_init();
     font_init();
+    pause_init();
 
     srand(TICKS_READ());
 

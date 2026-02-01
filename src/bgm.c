@@ -57,6 +57,14 @@ void bgm_play()
     mixer_ch_set_vol(BGM_CHANNEL, GAME_VOLUME, GAME_VOLUME);
 }
 
+void bgm_mute()
+{
+    if (!bgm_started)
+        return;
+
+    mixer_ch_set_vol(BGM_CHANNEL, 0.0f, 0.0f);
+}
+
 void bgm_start()
 {
     if (bgm_started)

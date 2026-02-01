@@ -12,6 +12,7 @@
 void bgm_init();
 void bgm_pause();
 void bgm_play();
+void bgm_mute();
 void bgm_start();
 void bgm_stop();
 void bgm_update();
