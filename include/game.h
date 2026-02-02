@@ -16,6 +16,8 @@ void game_init(void);
 void game_update(control_t *keys[2]);
 void game_draw(display_context_t disp);
 void game_draw_title_background(int screen_w, int screen_h);
+void game_draw_title_band(sprite_t *tile, int screen_w, int screen_h);
+sprite_t *game_get_tile_sprite(tile_id_t tile_id);
 int game_get_broken_sections(void);
 
 #endif //__GAME_H__

@@ -369,20 +369,20 @@ static bool is_blocked_position(int world_x, int world_y, int index)
 
 
 /**
- * @brief game_draw_title_background: Draw a single tiled band.
+ * @brief game_draw_title_band: Draw a single tiled band using a tile sprite.
  */
-void game_draw_title_background(int screen_w, int screen_h)
+void game_draw_title_band(sprite_t *tile, int screen_w, int screen_h)
 {
     rdpq_clear(background);
 
-    if (!base_tile)
+    if (!tile)
         return;
 
     int half_w = ISO_W / 2;
     int half_h = ISO_H / 2;
 
     int origin_x = (screen_w / 2) - half_w;
-    int origin_y = -base_tile->height * 2;
+    int origin_y = -tile->height * 2;
 
     int max_tiles = (screen_w / half_w) + 2;
 
@@ -402,12 +402,28 @@ void game_draw_title_background(int screen_w, int screen_h)
             int screen_x = origin_x + (x - y) * half_w;
             int screen_y = origin_y + s * half_h;
 
-            if (screen_x < -base_tile->width || screen_x > screen_w)
+            if (screen_x < -tile->width || screen_x > screen_w)
                 continue;
 
-            rdpq_sprite_blit(base_tile, screen_x, screen_y, NULL);
+            rdpq_sprite_blit(tile, screen_x, screen_y, NULL);
         }
     }
+}
+
+/**
+ * @brief game_draw_title_background: Draw a single tiled band.
+ */
+void game_draw_title_background(int screen_w, int screen_h)
+{
+    game_draw_title_band(base_tile, screen_w, screen_h);
+}
+
+// game_get_tile_sprite: Return tile sprite by tile id.
+sprite_t *game_get_tile_sprite(tile_id_t tile_id)
+{
+    if (tile_id < 0 || tile_id >= TILE_COUNT)
+        return NULL;
+    return map_render.tile_sprites[tile_id];
 }
 
 /**

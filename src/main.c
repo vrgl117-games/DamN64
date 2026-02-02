@@ -16,7 +16,7 @@
 #include "pause.h"
 #include "screens.h"
 
-screen_t screen = game;
+screen_t screen = game_over;
 
 // main: Initialize systems and run main loop.
 int main()

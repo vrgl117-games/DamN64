@@ -150,6 +150,7 @@ void screen_story(display_context_t disp, control_t *keys[2])
     const char *tutorial_line_2 = "to the broken sections                       to fix them asap!";
     const char *continue_prompt = "Continue...";
     int screen_w = display_get_width();
+    int screen_h = display_get_height();
 
     (void)keys;
 
@@ -171,7 +172,7 @@ void screen_story(display_context_t disp, control_t *keys[2])
     rdpq_attach(disp, NULL);
     rdpq_clear(background);
     rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
-                    FONT_PIXEL_SQUARE, 0, display_get_height() / 4, top);
+                    FONT_PIXEL_SQUARE, 0, screen_h / 4, top);
     rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
                     FONT_PIXEL, 0, 78, story_line);
 
@@ -236,6 +237,7 @@ void screen_game_over(display_context_t disp, control_t *keys[2])
     const char *line = "The city flooded...";
     const char *prompt = "Restart";
     int screen_w = display_get_width();
+    int screen_h = display_get_height();
 
     (void)keys;
 
@@ -250,11 +252,11 @@ void screen_game_over(display_context_t disp, control_t *keys[2])
     }
 
     rdpq_attach(disp, NULL);
-    rdpq_clear(background);
+    game_draw_title_band(game_get_tile_sprite(TILE_WAVES), screen_w, screen_h);
     rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
-                    FONT_PIXEL_SQUARE, 0, display_get_height() / 4, title);
+                    FONT_PIXEL_SQUARE, 0, screen_h / 4, title);
     rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
-                    FONT_PIXEL, 0, display_get_height() / 2, line);
+                    FONT_PIXEL, 0, screen_h / 2 - 30, line);
     rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
                     FONT_PIXEL, 0, 220, prompt);
 #ifndef NDEBUG
