@@ -9,7 +9,17 @@
 #ifndef __FPS_H__
 #define __FPS_H__
 
+#ifndef NDEBUG
 void fps_tick(void);
 void fps_draw(void);
+#else
+static inline void fps_tick(void)
+{
+}
+
+static inline void fps_draw(void)
+{
+}
+#endif
 
 #endif //__FPS_H__

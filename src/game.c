@@ -15,7 +15,9 @@
 #include "dam.h"
 #include "pause.h"
 #include "bgm.h"
+#ifndef NDEBUG
 #include "fps.h"
+#endif
 #include "font.h"
 // Logical diamond footprint in screen space (not necessarily sprite size)
 #define ISO_W 32
@@ -62,8 +64,6 @@ static map_render_t map_render = {0};
 
 static bool split_screen_active = false;
 
-// Debug overlay toggle (L button)
-static bool debug_enabled = false;
 
 // Which player is on the left half in split mode (0 = P1, 1 = P2)
 static int left_player = 0;
@@ -367,72 +367,6 @@ static bool is_blocked_position(int world_x, int world_y, int index)
     return false;
 }
 
-/**
- * @brief draw_debug_rect: Draw a rectangle outline for debug visualization.
- */
-static void draw_debug_rect(int x1, int y1, int x2, int y2, color_t color)
-{
-    rdpq_set_mode_fill(color);
-    // Top edge
-    rdpq_fill_rectangle(x1, y1, x2, y1 + 1);
-    // Bottom edge
-    rdpq_fill_rectangle(x1, y2 - 1, x2, y2);
-    // Left edge
-    rdpq_fill_rectangle(x1, y1, x1 + 1, y2);
-    // Right edge
-    rdpq_fill_rectangle(x2 - 1, y1, x2, y2);
-}
-
-/**
- * @brief draw_debug_collision: Draw collision boxes for buildings and vehicle.
- */
-static void draw_debug_collision(int current_cam_x)
-{
-    // Draw building collision boxes (red) - 2 boxes per building
-    color_t building_color = RGBA32(255, 0, 0, 255);
-    for (int i = 0; i < building_count; i++)
-    {
-        building_bbox_t *b = &building_boxes[i];
-
-        int base_screen_x = b->world_x - current_cam_x;
-        int base_screen_y = b->world_y - cam_y;
-
-        // Box 1 (left side)
-        int screen_x1 = base_screen_x + b->box1_off_x;
-        int screen_y1 = base_screen_y + b->box1_off_y;
-        draw_debug_rect(screen_x1 - b->box1_half_w, screen_y1 - b->box1_half_h,
-                        screen_x1 + b->box1_half_w, screen_y1 + b->box1_half_h, building_color);
-
-        // Box 2 (right side)
-        int screen_x2 = base_screen_x + b->box2_off_x;
-        int screen_y2 = base_screen_y + b->box2_off_y;
-        draw_debug_rect(screen_x2 - b->box2_half_w, screen_y2 - b->box2_half_h,
-                        screen_x2 + b->box2_half_w, screen_y2 + b->box2_half_h, building_color);
-    }
-
-    // Draw vehicle collision boxes (green)
-    color_t vehicle_color = RGBA32(0, 255, 0, 255);
-    for (int i = 0; i < 2; i++)
-    {
-        int vx = 0;
-        int vy = 0;
-        int half_w = vehicle_half_w;
-        int half_h = vehicle_half_h;
-        int offset_y = vehicle_offset_y;
-        character_get_position(i, &vx, &vy);
-        character_get_collision_box(i, &half_w, &half_h, &offset_y);
-
-        int screen_x = vx - current_cam_x;
-        int screen_y = vy - cam_y + offset_y;
-
-        int x1 = screen_x - half_w;
-        int y1 = screen_y - half_h;
-        int x2 = screen_x + half_w;
-        int y2 = screen_y + half_h;
-
-        draw_debug_rect(x1, y1, x2, y2, vehicle_color);
-    }
-}
 
 /**
  * @brief game_draw_title_background: Draw a single tiled band.
@@ -704,10 +638,6 @@ void game_update(control_t *keys[2])
     const control_t *p2 = keys[1];
     const control_t *player_keys[2] = {p1, p2};
 
-    // Toggle debug overlay with L button
-    if (p1->L || (p2 && p2->L))
-        debug_enabled = !debug_enabled;
-
     dam_update();
     update_music_track();
     character_update(player_keys, is_blocked_position);
@@ -801,7 +731,7 @@ void game_update(control_t *keys[2])
 }
 
 /**
- * @brief game_draw: Render the scene and debug overlay.
+ * @brief game_draw: Render the scene.
  */
 void game_draw(display_context_t disp)
 {
@@ -863,29 +793,13 @@ void game_draw(display_context_t disp)
         character_draw(cam_x);
         map_draw_buildings(&game_map, &map_render, cam_x, screen_w);
 
-        // Debug info for single mode
-        if (debug_enabled)
-        {
-            // Draw collision debug boxes
-            draw_debug_collision(cam_x);
-        }
     }
 
     dam_draw_breach_bar(screen_w);
 
-    if (debug_enabled)
-    {
-        rdpq_text_printf(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_LEFT},
-                         FONT_DEBUG, 8, screen_h - 52, "P1 full: %s", character_is_full(0) ? "on" : "off");
-        rdpq_text_printf(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_LEFT},
-                         FONT_DEBUG, 8, screen_h - 40, "P2 full: %s", character_is_full(1) ? "on" : "off");
-        rdpq_text_printf(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_LEFT},
-                         FONT_DEBUG, 8, screen_h - 28, "Plant Y ready: %s", plant_ready_y ? "on" : "off");
-        rdpq_text_printf(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_LEFT},
-                         FONT_DEBUG, 8, screen_h - 16, "Plant R ready: %s", plant_ready_r ? "on" : "off");
-    }
-
+#ifndef NDEBUG
     fps_draw();
+#endif
     rdpq_detach_show();
 }
 

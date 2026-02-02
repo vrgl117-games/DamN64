@@ -269,7 +269,7 @@ The N64 has limited CPU (93.75 MHz MIPS) and GPU (RDP) resources. Follow these p
 ### Text Rendering
 
 - `rdpq_text_printf()` is expensive - avoid in hot paths
-- Debug overlays should be toggle-able (use L button in this project)
+- FPS counter is only shown in debug builds
 
 ### General
 
@@ -284,4 +284,3 @@ The N64 has limited CPU (93.75 MHz MIPS) and GPU (RDP) resources. Follow these p
 |--------|--------|
 | D-Pad / Stick | Move your vehicle |
 | Z (single player) | Switch active vehicle |
-| L | Toggle debug overlay |

@@ -25,8 +25,10 @@ int main()
     dfs_init(DFS_DEFAULT_LOCATION);
     rdpq_init();
 #ifndef NDEBUG
+#ifndef NDEBUG
     debug_init(DEBUG_FEATURE_LOG_ISVIEWER);
     rdpq_debug_start();
+#endif
 #endif
     bgm_init();
     joypad_init();
@@ -86,7 +88,9 @@ int main()
             break;
         }
 
+#ifndef NDEBUG
         fps_tick();
+#endif
         bgm_update();
     }
 

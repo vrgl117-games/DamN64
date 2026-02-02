@@ -16,7 +16,6 @@ Controls
 | --- | --- |
 | D-Pad / Stick | Move your vehicle |
 | Z (single player) | Switch active vehicle |
-| L | Toggle debug overlay |
 
 With two controllers connected, each player controls a vehicle.
 
@@ -53,6 +52,7 @@ Notes
 
 - ROM output: `DamN64.z64`
 - Build artifacts and generated assets are gitignored.
+- FPS counter is shown only in debug builds.
 
 
 Thanks
@@ -60,4 +60,3 @@ Thanks
 
 * Thanks to [Kenney](https://www.kenney.nl) for the art used in the game.
 * Thanks to [The libdragon maintainers](https://github.com/DragonMinded/libdragon/graphs/contributors) for libdragon.
-

@@ -9,7 +9,9 @@
 #include "screens.h"
 
 #include "bgm.h"
+#ifndef NDEBUG
 #include "fps.h"
+#endif
 #include "font.h"
 #include "game.h"
 #include "pause.h"
@@ -76,7 +78,9 @@ bool screen_intro(display_context_t disp)
     }
 
     rdpq_attach_clear(disp, NULL);
+#ifndef NDEBUG
     fps_draw();
+#endif
     if (intro != NULL)
     {
         int screen_w = display_get_width();
@@ -129,7 +133,9 @@ void screen_title(display_context_t disp)
     if (tick % 30 < 15)
         rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
                         FONT_PIXEL, 0, prompt_y, prompt);
+#ifndef NDEBUG
     fps_draw();
+#endif
     rdpq_detach_show();
 }
 
@@ -188,7 +194,9 @@ void screen_story(display_context_t disp, control_t *keys[2])
         rdpq_sprite_blit(truck_red, 178, 106, NULL);
     }
 
+#ifndef NDEBUG
     fps_draw();
+#endif
     rdpq_detach_show();
 
     if (beton_tile)
@@ -249,6 +257,8 @@ void screen_game_over(display_context_t disp, control_t *keys[2])
                     FONT_PIXEL, 0, display_get_height() / 2, line);
     rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
                     FONT_PIXEL, 0, 220, prompt);
+#ifndef NDEBUG
     fps_draw();
+#endif
     rdpq_detach_show();
 }

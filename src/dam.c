@@ -101,7 +101,6 @@ static int pick_intact_index(void)
 
     for (int i = 0; i < wall_intact_count; i++)
     {
-        int section_index = wall_intact_indices[i];
         seen++;
         if ((rand() % seen) == 0)
             pick = i;

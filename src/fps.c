@@ -6,6 +6,7 @@
  * of the Apache license. See the LICENSE file for details.
  */
 
+#ifndef NDEBUG
 #include "fps.h"
 
 #include <stdint.h>
@@ -41,3 +42,5 @@ void fps_draw(void)
     rdpq_text_printf(&(rdpq_textparms_t){.width = screen_w - 8, .align = ALIGN_RIGHT},
                      FONT_DEBUG, 1, 10, "FPS: %d", fps_value);
 }
+
+#endif
