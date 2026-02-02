@@ -162,31 +162,11 @@ static bool is_building_tile(int tile_id)
  */
 static sprite_t *get_building_sprite(const map_render_t *render, int tile_id)
 {
-    switch (tile_id)
-    {
-    case TILE_BUILDING_RIGHT_RED_TWO:
-        return render->building_right_red_two;
-    case TILE_BETON:
-        return render->beton_sprite;
-    case TILE_BETON_RED:
-        return render->beton_red_sprite;
-    case TILE_BETON_YELLOW:
-        return render->beton_yellow_sprite;
-    case TILE_BUILDING_RIGHT_BROWN_TWO:
-        return render->building_right_brown_two;
-    case TILE_BUILDING_LEFT_RED_THREE:
-        return render->building_left_red_three;
-    case TILE_BUILDING_LEFT_WHITE_ONE:
-        return render->building_left_white_one;
-    case TILE_BUILDING_RIGHT_YELLOW_FOUR:
-        return render->building_right_yellow_four;
-    case TILE_BUILDING_LEFT_WHITE_SIX:
-        return render->building_left_white_six;
-    case TILE_BUILDING_LEFT_BROWN_THREE:
-        return render->building_left_brown_three;
-    default:
+    if (tile_id <= 0 || tile_id >= TILE_COUNT)
         return NULL;
-    }
+    if (!is_building_tile(tile_id))
+        return NULL;
+    return render->tile_sprites[tile_id];
 }
 
 /**
@@ -211,7 +191,7 @@ void map_draw(const map_t *map, const map_render_t *render, int cam_x, int view_
 
             if (is_building_tile(tile_id))
             {
-                tile = render->base_tile;
+                tile = render->tile_sprites[TILE_BASE];
             }
 
             // TILE_NONE = skip drawing

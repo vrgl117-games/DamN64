@@ -8,7 +8,6 @@
 #include "game.h"
 
 #include "rdpq.h"
-#include "sprite.h"
 #include "character.h"
 #include "dam.h"
 #include "pause.h"
@@ -57,7 +56,6 @@ static sprite_t *fountain_tile = NULL;
 static map_render_t map_render = {0};
 
 // Split-screen configuration
-#define SPLIT_HYSTERESIS 0 // Buffer to prevent flickering
 #define DIVIDER_WIDTH 2    // Width of the divider line
 
 static bool split_screen_active = false;
@@ -118,11 +116,6 @@ typedef struct
 
 static building_bbox_t building_boxes[MAX_BUILDINGS];
 static int building_count = 0;
-
-// Vehicle collision box dimensions (world space)
-static int vehicle_half_w = 7;   // Width
-static int vehicle_half_h = 6;   // Height
-static int vehicle_offset_y = 2; // Offset to move box lower
 
 #define PLANT_REFILL_SECONDS 16
 
@@ -355,9 +348,9 @@ static bool is_blocked_position(int world_x, int world_y, int index)
         return true;
 
     // Vehicle position with offset
-    int half_w = vehicle_half_w;
-    int half_h = vehicle_half_h;
-    int offset_y = vehicle_offset_y;
+    int half_w = 0;
+    int half_h = 0;
+    int offset_y = 0;
     character_get_collision_box(index, &half_w, &half_h, &offset_y);
 
     int vx = world_x;
@@ -530,18 +523,6 @@ void game_init(void)
     map_render.step_y = step_y;
     map_render.spr_h = spr_h;
     map_render.cam_y = cam_y;
-    map_render.base_tile = base_tile;
-    map_render.building_right_red_two = building_right_red_two;
-    map_render.waves_boat_tile = waves_boat_tile;
-    map_render.beton_sprite = beton_sprite;
-    map_render.beton_red_sprite = beton_red_sprite;
-    map_render.beton_yellow_sprite = beton_yellow_sprite;
-    map_render.building_right_brown_two = building_right_brown_two;
-    map_render.building_left_red_three = building_left_red_three;
-    map_render.building_left_white_one = building_left_white_one;
-    map_render.building_right_yellow_four = building_right_yellow_four;
-    map_render.building_left_white_six = building_left_white_six;
-    map_render.building_left_brown_three = building_left_brown_three;
 
     dam_init();
     character_init(base_x, base_y, p2_x - base_x, p2_y - base_y, cam_y);
@@ -696,13 +677,12 @@ void game_update(control_t *keys[2])
     // In single mode, each player is dist_x/2 from camera center
     // Split when dist_x/2 > screen_w/4, i.e. dist_x > screen_w/2
     int split_threshold = screen_w / 2;
-    int merge_threshold = split_threshold - SPLIT_HYSTERESIS;
 
-    // Determine split-screen mode with hysteresis
+    // Determine split-screen mode
     if (split_screen_active)
     {
         // Exit split mode when players can fit on screen together
-        if (dist_x < merge_threshold)
+        if (dist_x < split_threshold)
             split_screen_active = false;
     }
     else

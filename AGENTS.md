@@ -8,7 +8,7 @@ This document provides guidelines for AI coding agents working on this N64 libdr
 - **SDK**: libdragon (modern open-source N64 SDK)
 - **Language**: C (C99)
 - **Build**: Docker-based cross-compilation (MIPS)
-- **Resolution**: 640x480, 16-bit color, double-buffered
+- **Resolution**: 320x240, 16-bit color, double-buffered
 
 ## Build Commands
 
@@ -52,14 +52,20 @@ make help           # Show all available make targets
 │   ├── game.c          # Core game logic, map rendering, camera
 │   ├── character.c     # Player/vehicle movement and rendering
 │   ├── controls.c      # Controller input handling
-│   ├── screens.c       # Screen state machine (intro, title, game)
+│   ├── screens.c       # Screen state machine (intro, title, story, game, game_over)
+│   ├── dam.c           # Dam break logic, wall section states, water spread
+│   ├── pause.c         # Pause menu overlay with music/rumble toggles
+│   ├── title.c         # Title screen truck animations
+│   ├── bgm.c           # Background music management and track switching
+│   ├── font.c          # Font loading and registration
+│   ├── fps.c           # FPS counter (debug builds only)
 │   ├── rdpq.c          # RDP graphics helper functions
-│   ├── map.c           # Static map tile data
+│   ├── map.c           # Static map tile data and rendering
 │   └── sprite.c        # Sprite loading utilities
 ├── include/            # Header files (mirrors src/)
 ├── resources/          # Source assets
 │   ├── gfx/sprites/   # PNG sprite images
-│   └── sfx/bgms/      # MP3 audio files
+│   └── sfx/bgms/      # WAV audio files
 ├── filesystem/         # Generated assets (sprites, audio) - gitignored
 ├── build/              # Build artifacts - gitignored
 ├── Dockerfile          # libdragon build environment
@@ -247,7 +253,7 @@ done
 main() → game_init() → while(true) { controls → update → draw }
 ```
 
-State machine: `intro` → `title` → `game`
+State machine: `intro` → `title` → `single_disclaimer` (single player only) → `story` → `game` → `game_over` → `title`
 
 ## N64 Performance Guidelines
 
@@ -284,3 +290,5 @@ The N64 has limited CPU (93.75 MHz MIPS) and GPU (RDP) resources. Follow these p
 |--------|--------|
 | D-Pad / Stick | Move your vehicle |
 | Z (single player) | Switch active vehicle |
+| Start | Pause menu (during game) |
+| A/B/Start | Advance screens |

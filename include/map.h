@@ -9,7 +9,7 @@
 #ifndef __MAP_H__
 #define __MAP_H__
 
-#include "sprite.h"
+#include <libdragon.h>
 
 #define MAP_WIDTH 27
 #define MAP_HEIGHT 27
@@ -66,18 +66,6 @@ typedef struct
     int spr_h;
     int cam_y;
     sprite_t *tile_sprites[TILE_COUNT];
-    sprite_t *base_tile;
-    sprite_t *building_right_red_two;
-    sprite_t *waves_boat_tile;
-    sprite_t *beton_sprite;
-    sprite_t *beton_red_sprite;
-    sprite_t *beton_yellow_sprite;
-    sprite_t *building_right_brown_two;
-    sprite_t *building_left_red_three;
-    sprite_t *building_left_white_one;
-    sprite_t *building_right_yellow_four;
-    sprite_t *building_left_white_six;
-    sprite_t *building_left_brown_three;
 } map_render_t;
 
 extern map_t game_map;

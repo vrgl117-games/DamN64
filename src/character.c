@@ -7,7 +7,6 @@
 
 #include "character.h"
 #include "rdpq.h"
-#include "sprite.h"
 
 #define CHARACTER_COUNT 2
 #define CAR_DIR_COUNT 8
@@ -70,8 +69,6 @@ void character_load_vehicle_sprites(void)
  */
 void character_init(int base_x, int base_y, int offset_x, int offset_y, int cam_y)
 {
-    character_load_vehicle_sprites();
-
     active_player = 0;
     stored_cam_y = cam_y;
 
@@ -363,8 +360,6 @@ bool character_is_full(int index)
  */
 sprite_t *character_get_vehicle_sprite(int color_index, int dir)
 {
-    character_load_vehicle_sprites();
-
     if (dir < 0 || dir >= CAR_DIR_COUNT)
         dir = CAR_DIR_S;
 

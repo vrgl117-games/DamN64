@@ -16,7 +16,6 @@
 #include "game.h"
 #include "pause.h"
 #include "rdpq.h"
-#include "sprite.h"
 #include "title.h"
 
 extern const color_t background;

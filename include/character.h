@@ -9,7 +9,7 @@
 #define __CHARACTER_H__
 
 #include "controls.h"
-#include "sprite.h"
+#include <libdragon.h>
 #include <stdbool.h>
 
 #define ISO_H_HALF 8
