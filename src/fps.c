@@ -11,8 +11,6 @@
 
 #include <stdint.h>
 
-#include <libdragon.h>
-
 #include "font.h"
 
 static uint32_t fps_last_sec = 0;

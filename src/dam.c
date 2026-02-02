@@ -13,8 +13,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-#include <libdragon.h>
-
 #include "font.h"
 #include "map.h"
 #include "rdpq.h"

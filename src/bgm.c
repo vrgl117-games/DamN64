@@ -13,8 +13,6 @@
 
 #include <math.h>
 
-#include <libdragon.h>
-
 #define BGM_CHANNEL 0
 #define GAME_VOLUME 1.0f
 #define PAUSE_VOLUME 0.33f
@@ -35,17 +33,17 @@ static const char *bgm_track_path(bgm_track_t track)
 {
     switch (track)
     {
-        case BGM_TRACK_JOY:
-            return "rom:/sfx/bgms/DamN64_joy_LITE_22k.wav64";
-        case BGM_TRACK_WEIRD:
-            return "rom:/sfx/bgms/DamN64_weird_LITE_22k.wav64";
-        case BGM_TRACK_WEIRD2:
-            return "rom:/sfx/bgms/DamN64_weird2_LITE_22k.wav64";
-        case BGM_TRACK_YOULOSE:
-            return "rom:/sfx/bgms/DamN64_youlose_LITE_22k.wav64";
-        case BGM_TRACK_INTRO_PAUSE:
-        default:
-            return "rom:/sfx/bgms/DamN64_intro_pause_screen_22k.wav64";
+    case BGM_TRACK_JOY:
+        return "rom:/sfx/bgms/DamN64_joy_LITE_22k.wav64";
+    case BGM_TRACK_WEIRD:
+        return "rom:/sfx/bgms/DamN64_weird_LITE_22k.wav64";
+    case BGM_TRACK_WEIRD2:
+        return "rom:/sfx/bgms/DamN64_weird2_LITE_22k.wav64";
+    case BGM_TRACK_YOULOSE:
+        return "rom:/sfx/bgms/DamN64_youlose_LITE_22k.wav64";
+    case BGM_TRACK_INTRO_PAUSE:
+    default:
+        return "rom:/sfx/bgms/DamN64_intro_pause_screen_22k.wav64";
     }
 }
 

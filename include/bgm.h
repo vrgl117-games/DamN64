@@ -9,6 +9,8 @@
 #ifndef __BGM_H__
 #define __BGM_H__
 
+#include <libdragon.h>
+
 typedef enum
 {
     BGM_TRACK_INTRO_PAUSE = 0,

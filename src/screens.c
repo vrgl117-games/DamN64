@@ -23,6 +23,12 @@ extern const color_t background;
 
 static volatile int tick = 0;
 
+static void screen_stop_rumble(void)
+{
+    joypad_set_rumble_active(JOYPAD_PORT_1, false);
+    joypad_set_rumble_active(JOYPAD_PORT_2, false);
+}
+
 // screen_init: Initialize screen state.
 void screen_init()
 {
@@ -106,6 +112,8 @@ void screen_timer_title()
 // screen_title: Render title screen.
 void screen_title(display_context_t disp)
 {
+    screen_stop_rumble();
+
     const char *title = "DamN64";
     const char *prompt = "Press Any Button";
     int screen_w = display_get_width();
@@ -142,6 +150,8 @@ void screen_title(display_context_t disp)
 // screen_story: Render story screen.
 void screen_story(display_context_t disp, control_t *keys[2])
 {
+    screen_stop_rumble();
+
     const char *top = "Damn!! The Dam broke!";
 
     const char *story_line = "It needs to be repaired before the city floods !";
@@ -213,6 +223,8 @@ void screen_story(display_context_t disp, control_t *keys[2])
 // screen_single_disclaimer: Render single-player disclaimer screen.
 void screen_single_disclaimer(display_context_t disp, control_t *keys[2])
 {
+    screen_stop_rumble();
+
     const char *line_1 = "Disclaimer: this game is best played";
     const char *line_2 = "with 2 players, in single player,";
     const char *line_3 = "use the Z button to switch between players.";
@@ -261,6 +273,8 @@ bool screen_game(display_context_t disp, control_t *keys[2])
 // screen_game_over: Render game over screen.
 void screen_game_over(display_context_t disp, control_t *keys[2])
 {
+    screen_stop_rumble();
+
     const char *title = "GAME OVER";
     const char *line = "The city flooded...";
     const char *prompt = "Restart";

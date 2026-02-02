@@ -7,8 +7,6 @@
  */
 #include "game.h"
 
-#include <libdragon.h>
-
 #include "rdpq.h"
 #include "sprite.h"
 #include "character.h"
@@ -63,7 +61,6 @@ static map_render_t map_render = {0};
 #define DIVIDER_WIDTH 2    // Width of the divider line
 
 static bool split_screen_active = false;
-
 
 // Which player is on the left half in split mode (0 = P1, 1 = P2)
 static int left_player = 0;
@@ -366,7 +363,6 @@ static bool is_blocked_position(int world_x, int world_y, int index)
 
     return false;
 }
-
 
 /**
  * @brief game_draw_title_band: Draw a single tiled band using a tile sprite.
@@ -808,7 +804,6 @@ void game_draw(display_context_t disp)
         map_draw(&game_map, &map_render, cam_x, screen_w);
         character_draw(cam_x);
         map_draw_buildings(&game_map, &map_render, cam_x, screen_w);
-
     }
 
     dam_draw_breach_bar(screen_w);
