@@ -51,7 +51,7 @@ static const map_t oooe_map = {
         /*  2 */ {___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ooo, ooo, RRT, ooo, ooo, RRT, ooo, ooo, ___, ___, ___, ___, ___, ___},
         /*  3 */ {___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, RDL, RLF, RDL, RTT, RDL, RLF, RTT, RLF, RDL, RC3, ___, ___, ___, ___, ___},
         /*  4 */ {___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ___, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, RRT, ooo, ___, ___, ___, ___},
-        /*  5 */ {___, ___, ___, ___, ___, ___, ___, ___, ___, ___, BLB, BLB, BL6, BL6, BLW, BLW, BLR, BLB, BLB, BL6, ooo, RDR, ooo, ooo, ___, ___, ___},
+        /*  5 */ {___, ___, ___, ___, ___, ___, ___, ___, ___, ___, BLB, BLB, BL6, BL6, BLB, BLW, BLR, BLW, BLB, BL6, ooo, RDR, ooo, ooo, ___, ___, ___},
         /*  6 */ {___, ___, ___, ___, ___, ___, ___, ___, ___, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, RRT, ooo, ooo, ooo, ___, ___},
         /*  7 */ {___, ___, ___, ___, ___, ___, ___, ___, BLY, ooo, ooo, ooo, RC1, RLF, RDL, RLF, RDL, RLF, RDL, RLF, RLF, RC2, ooo, ooo, ooo, ooo, ___},
         /*  8 */ {___, ___, ___, ___, ___, ___, ___, WAL, ooo, BR1, ooo, ooo, RDR, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo, ooo},

@@ -69,7 +69,7 @@ void character_init(int base_x, int base_y, int offset_x, int offset_y, int cam_
     {
         character_x[i] = base_x + i * offset_x;
         character_y[i] = base_y + i * offset_y;
-        char_facing[i] = CAR_DIR_S;
+        char_facing[i] = (i == 0) ? CAR_DIR_NE : CAR_DIR_SW;
         character_full[i] = false;
     }
 }

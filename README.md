@@ -53,3 +53,11 @@ Notes
 
 - ROM output: `DamN64.z64`
 - Build artifacts and generated assets are gitignored.
+
+
+Thanks
+------
+
+* Thanks to [Kenney](https://www.kenney.nl) for the art used in the game.
+* Thanks to [The libdragon maintainers](https://github.com/DragonMinded/libdragon/graphs/contributors) for libdragon.
+

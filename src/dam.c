@@ -57,7 +57,8 @@ typedef enum
 #define MIN_BREAK_INTERVAL_SECONDS 10
 #define BREAKING_DURATION_SECONDS 3
 #define BREAKING_BLINK_TICKS (TICKS_PER_SECOND / 2)
-#define TOP_ROW_LIMIT 13
+#define FIXED_FIRST_BREAK_X 7
+#define FIXED_FIRST_BREAK_Y 19
 #define MAX_WATER_SPREAD 8
 
 static wall_section_t wall_sections[MAX_WALL_TILES];
@@ -73,6 +74,7 @@ static bool spreading_active = false;
 
 static void update_water_spread(void);
 static void start_spread(spread_kind_t kind, int x, int y);
+static bool start_breaking_wall_at(int grid_x, int grid_y, uint32_t now);
 
 /**
  * @brief start_breaking_wall: Set a wall section to breaking state.
@@ -90,9 +92,9 @@ static void start_breaking_wall(wall_section_t *section, uint32_t now)
 }
 
 /**
- * @brief pick_intact_index: Pick an intact wall index with optional row limit.
+ * @brief pick_intact_index: Pick an intact wall index.
  */
-static int pick_intact_index(int max_row)
+static int pick_intact_index(void)
 {
     int pick = -1;
     int seen = 0;
@@ -100,10 +102,6 @@ static int pick_intact_index(int max_row)
     for (int i = 0; i < wall_intact_count; i++)
     {
         int section_index = wall_intact_indices[i];
-        int y = wall_sections[section_index].y;
-        if (max_row >= 0 && y > max_row)
-            continue;
-
         seen++;
         if ((rand() % seen) == 0)
             pick = i;
@@ -115,13 +113,13 @@ static int pick_intact_index(int max_row)
 /**
  * @brief start_breaking_random_walls: Start breaking random wall sections.
  */
-static void start_breaking_random_walls(int count, int max_row, uint32_t now)
+static void start_breaking_random_walls(int count, uint32_t now)
 {
     for (int i = 0; i < count && wall_intact_count > 0; i++)
     {
-        int intact_index = pick_intact_index(max_row);
+        int intact_index = pick_intact_index();
         if (intact_index < 0)
-            intact_index = pick_intact_index(-1);
+            intact_index = pick_intact_index();
         if (intact_index < 0)
             return;
 
@@ -133,6 +131,34 @@ static void start_breaking_random_walls(int count, int max_row, uint32_t now)
         wall_intact_indices[intact_index] = wall_intact_indices[wall_intact_count - 1];
         wall_intact_count--;
     }
+}
+
+static bool start_breaking_wall_at(int grid_x, int grid_y, uint32_t now)
+{
+    for (int i = 0; i < wall_section_count; i++)
+    {
+        wall_section_t *section = &wall_sections[i];
+        if (section->x != grid_x || section->y != grid_y)
+            continue;
+        if (section->state != WALL_INTACT)
+            return false;
+
+        start_breaking_wall(section, now);
+
+        for (int j = 0; j < wall_intact_count; j++)
+        {
+            if (wall_intact_indices[j] == i)
+            {
+                wall_intact_indices[j] = wall_intact_indices[wall_intact_count - 1];
+                wall_intact_count--;
+                break;
+            }
+        }
+
+        return true;
+    }
+
+    return false;
 }
 
 static void start_spread(spread_kind_t kind, int x, int y)
@@ -225,8 +251,24 @@ void dam_init(void)
     wall_intact_count = 0;
     broken_section_count = 0;
     break_step = 0;
-    bool skipped_first = false;
     spreading_active = false;
+    bool fixed_added = false;
+
+    if (game_map.tiles[FIXED_FIRST_BREAK_Y][FIXED_FIRST_BREAK_X] == TILE_WALL &&
+        wall_section_count < MAX_WALL_TILES)
+    {
+        wall_sections[wall_section_count].x = FIXED_FIRST_BREAK_X;
+        wall_sections[wall_section_count].y = FIXED_FIRST_BREAK_Y;
+        wall_sections[wall_section_count].state = WALL_INTACT;
+        wall_sections[wall_section_count].blink_tick = 0;
+        wall_sections[wall_section_count].end_tick = 0;
+        wall_sections[wall_section_count].blink_on = true;
+
+        wall_intact_indices[wall_intact_count] = wall_section_count;
+        wall_intact_count++;
+        wall_section_count++;
+        fixed_added = true;
+    }
 
     for (int y = 0; y < MAP_HEIGHT; y++)
     {
@@ -234,11 +276,8 @@ void dam_init(void)
         {
             if (game_map.tiles[y][x] == TILE_WALL && wall_section_count < MAX_WALL_TILES)
             {
-                if (!skipped_first)
-                {
-                    skipped_first = true;
+                if (fixed_added && x == FIXED_FIRST_BREAK_X && y == FIXED_FIRST_BREAK_Y)
                     continue;
-                }
 
                 wall_sections[wall_section_count].x = x;
                 wall_sections[wall_section_count].y = y;
@@ -252,12 +291,6 @@ void dam_init(void)
                 wall_section_count++;
             }
         }
-    }
-
-    if (wall_section_count > 0)
-    {
-        wall_section_count--;
-        wall_intact_count--;
     }
 
     uint32_t now = get_ticks();
@@ -333,9 +366,12 @@ void dam_update(void)
         int break_count = 1;
 
         if (break_step == 0)
-            start_breaking_random_walls(break_count, TOP_ROW_LIMIT, now);
+        {
+            if (!start_breaking_wall_at(FIXED_FIRST_BREAK_X, FIXED_FIRST_BREAK_Y, now))
+                start_breaking_random_walls(break_count, now);
+        }
         else
-            start_breaking_random_walls(break_count, -1, now);
+            start_breaking_random_walls(break_count, now);
 
         break_step++;
         next_break_tick = now + (interval_seconds * TICKS_PER_SECOND);
