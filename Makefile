@@ -16,7 +16,7 @@ endif
 
 N64_CFLAGS += -Iinclude
 ifeq ($(BUILD_TYPE),release)
-N64_CFLAGS += -O3 -DNDEBUG
+N64_CFLAGS += -DNDEBUG
 else
 	N64_CFLAGS += -O0 -g
 endif

@@ -108,7 +108,6 @@ int main()
             if (keys[0]->start || keys[0]->A || keys[0]->B)
             {
                 pause_init();
-                game_init();
                 screen = title;
             }
             break;

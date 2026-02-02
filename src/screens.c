@@ -156,7 +156,7 @@ void screen_story(display_context_t disp, control_t *keys[2])
 
     const char *story_line = "It needs to be repaired before the city floods !";
     const char *tutorial_line_0 = "Use the trucks                          to bring";
-    const char *tutorial_line_1 = "concrete from the factory";
+    const char *tutorial_line_1 = "concrete from the factories";
     const char *tutorial_line_2 = "to the broken sections                       to fix them asap!";
     const char *continue_prompt = "Continue...";
     int screen_w = display_get_width();

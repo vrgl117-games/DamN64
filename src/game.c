@@ -124,7 +124,7 @@ static int vehicle_half_w = 7;   // Width
 static int vehicle_half_h = 6;   // Height
 static int vehicle_offset_y = 2; // Offset to move box lower
 
-#define PLANT_REFILL_SECONDS 8
+#define PLANT_REFILL_SECONDS 16
 
 static bool plant_ready_y = true;
 static bool plant_ready_r = true;

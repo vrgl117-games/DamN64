@@ -69,6 +69,7 @@ static int break_step = 0;
 static int breaking_section_count = 0;
 static wall_spread_t water_spreads[MAX_WATER_SPREAD];
 static bool spreading_active = false;
+static bool dam_started = false;
 
 static void update_water_spread(void);
 static void start_spread(spread_kind_t kind, int x, int y);
@@ -249,6 +250,7 @@ void dam_init(void)
     broken_section_count = 0;
     break_step = 0;
     spreading_active = false;
+    dam_started = false;
     bool fixed_added = false;
 
     if (game_map.tiles[FIXED_FIRST_BREAK_Y][FIXED_FIRST_BREAK_X] == TILE_WALL &&
@@ -290,8 +292,7 @@ void dam_init(void)
         }
     }
 
-    uint32_t now = get_ticks();
-    next_break_tick = now + TICKS_PER_SECOND * 5;
+    next_break_tick = 0;
     breaking_section_count = 0;
 }
 
@@ -301,6 +302,12 @@ void dam_init(void)
 void dam_update(void)
 {
     uint32_t now = get_ticks();
+    if (!dam_started)
+    {
+        dam_started = true;
+        next_break_tick = now + TICKS_PER_SECOND * 5;
+        return;
+    }
     breaking_section_count = 0;
 
     update_water_spread();
