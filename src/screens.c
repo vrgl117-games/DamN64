@@ -210,6 +210,34 @@ void screen_story(display_context_t disp, control_t *keys[2])
         sprite_free(truck_red);
 }
 
+// screen_single_disclaimer: Render single-player disclaimer screen.
+void screen_single_disclaimer(display_context_t disp, control_t *keys[2])
+{
+    const char *line_1 = "Disclaimer: this game is best played";
+    const char *line_2 = "with 2 players, in single player,";
+    const char *line_3 = "use the Z button to switch between players.";
+    const char *prompt = "Continue...";
+    int screen_w = display_get_width();
+    int screen_h = display_get_height();
+
+    (void)keys;
+
+    rdpq_attach(disp, NULL);
+    rdpq_clear(background);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, screen_h / 2 - 24, line_1);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, screen_h / 2 - 6, line_2);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, screen_h / 2 + 12, line_3);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, 220, prompt);
+#ifndef NDEBUG
+    fps_draw();
+#endif
+    rdpq_detach_show();
+}
+
 // screen_game: Update and render the game screen.
 bool screen_game(display_context_t disp, control_t *keys[2])
 {

@@ -6,6 +6,7 @@
  * of the Apache license. See the LICENSE file for details.
  */
 
+#include <stdbool.h>
 #include <stdlib.h>
 
 #include "bgm.h"
@@ -16,7 +17,13 @@
 #include "pause.h"
 #include "screens.h"
 
-screen_t screen = game_over;
+#ifndef NDEBUG
+screen_t screen = title;
+#else
+screen_t screen = intro;
+#endif
+
+static bool single_disclaimer_shown = false;
 
 // main: Initialize systems and run main loop.
 int main()
@@ -25,10 +32,8 @@ int main()
     dfs_init(DFS_DEFAULT_LOCATION);
     rdpq_init();
 #ifndef NDEBUG
-#ifndef NDEBUG
     debug_init(DEBUG_FEATURE_LOG_ISVIEWER);
     rdpq_debug_start();
-#endif
 #endif
     bgm_init();
     joypad_init();
@@ -65,6 +70,21 @@ int main()
             break;
         case title: // press start.
             screen_title(disp);
+            if (keys[0]->start || keys[0]->A || keys[0]->B)
+            {
+                if (!single_disclaimer_shown && keys[1] == NULL)
+                {
+                    single_disclaimer_shown = true;
+                    screen = single_disclaimer;
+                }
+                else
+                {
+                    screen = story;
+                }
+            }
+            break;
+        case single_disclaimer:
+            screen_single_disclaimer(disp, keys);
             if (keys[0]->start || keys[0]->A || keys[0]->B)
                 screen = story;
             break;
