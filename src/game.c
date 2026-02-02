@@ -20,10 +20,10 @@
 // Logical diamond footprint in screen space (not necessarily sprite size)
 #define ISO_W 32
 #define ISO_H 16
-#define SPAWN_P1_GRID_X 10
-#define SPAWN_P1_GRID_Y 25
-#define SPAWN_P2_GRID_X 21
-#define SPAWN_P2_GRID_Y 4
+#define SPAWN_P1_GRID_X 9
+#define SPAWN_P1_GRID_Y 24
+#define SPAWN_P2_GRID_X 20
+#define SPAWN_P2_GRID_Y 5
 
 static sprite_t *base_tile = NULL;
 static sprite_t *building_right_red_two = NULL;
