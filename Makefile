@@ -1,10 +1,12 @@
 ARES_BIN := /Applications/ares.app/Contents/MacOS/ares
 
-.PHONY: all build docker rebuild setup resetup ares clean help
+.PHONY: all build docker rebuild setup resetup ares ares-release clean help
 
 BUILD_DIR := build
 SOURCE_DIR := src
+VERSION := 1.0.0
 ROM_NAME := DamN64
+RELEASE_ROM_NAME := DamN64-$(VERSION)
 BUILD_TYPE ?= debug
 
 N64_MK_PATH := $(N64_INST)/include/n64.mk
@@ -21,7 +23,7 @@ endif
 
 all: build
 
-build: ##    Create rom.
+build: ##        Create rom.
 	@if command -v docker >/dev/null 2>&1; then \
 		echo "Building rom inside docker environment..."; \
 		$(MAKE) docker; \
@@ -33,10 +35,12 @@ build: ##    Create rom.
 docker: setup
 	@docker run --user $(shell id -u):$(shell id -g) -v ${CURDIR}:/game build make BUILD_TYPE=$(BUILD_TYPE) $(ROM_NAME).z64
 
-rebuild: clean build	##  Erase temp files and create the rom.
+rebuild: clean build	##      Erase temp files and create the rom.
 
-release: ##  Create release rom.
+release: clean ##      Create release rom.
 	@$(MAKE) BUILD_TYPE=release build
+	@mv -f $(ROM_NAME).z64 $(RELEASE_ROM_NAME).z64
+	@echo "    [RELEASE] $(RELEASE_ROM_NAME).z64"
 
 # gfx #
 PNGS := $(wildcard resources/gfx/sprites/*.png) $(wildcard resources/gfx/sprites/*/*.png)
@@ -87,24 +91,29 @@ $(BUILD_DIR)/$(ROM_NAME).dfs: $(SPRITES) $(BGMS) $(FONTS)
 	@echo "    [DFS] $@"
 	@$(N64_MKDFS) $@ ./filesystem/ >/dev/null
 
-setup:		##    Create dev environment (docker image).
+setup:		##        Create dev environment (docker image).
 	@docker build --platform linux/amd64 -t build - < Dockerfile
 
-resetup:	##  Force recreate the dev environment (docker image).
+resetup:	##      Force recreate the dev environment (docker image).
 	@echo "Rebuilding dev environment in docker..."
 	@docker build --platform linux/amd64 -t build --no-cache  - < Dockerfile
 
-ares:		##     Start rom in Ares emulator.
+ares: build		##         Start rom in Ares emulator.
 	@echo "Starting ares..."
 	@mkdir -p .ares/saves
 	$(ARES_BIN) --setting "Paths/Saves=$(CURDIR)/.ares/saves" $(ROM_NAME).z64
 
-sd:			##       Flash rom to N64 EverDrive SD card.
+ares-release: release	## Start release rom in Ares emulator.
+	@echo "Starting ares (release)..."
+	@mkdir -p .ares/saves
+	$(ARES_BIN) --setting "Paths/Saves=$(CURDIR)/.ares/saves" $(RELEASE_ROM_NAME).z64
+
+sd:			##           Flash rom to N64 EverDrive SD card.
 	cp $(ROM_NAME).z64 /Volumes/N64/	
 
-clean:		##    Cleanup temp files.
+clean:		##        Cleanup temp files.
 	@echo "Cleaning up temp files..."
 	rm -rf $(BUILD_DIR) *.z64 *.elf src/*.o *.bin *.dfs filesystem/
 
-help:		##     Show this help.
+help:		##         Show this help.
 	@fgrep -h "##" $(MAKEFILE_LIST) | fgrep -v fgrep | sed -e 's/:.*##/:/' 

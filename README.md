@@ -9,6 +9,14 @@ About
 
 DamN64 is a libdragon-powered Nintendo 64 game with an isometric map and two driveable vehicles. It supports a horizontal split-screen view when players move far enough apart, and merges back to a single view when they are close.
 
+Screenshots
+-----------
+
+![Title Screen](screenshots/title.png)
+![Story Screen](screenshots/story.png)
+![Split Screen](screenshots/split.png)
+![Single Screen](screenshots/single.png)
+
 Controls
 --------
 

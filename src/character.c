@@ -28,6 +28,8 @@ static int active_player = 0;
 static int char_facing[CHARACTER_COUNT] = {0};
 static int stored_cam_y = 0;
 static bool character_full[CHARACTER_COUNT] = {false, false};
+static int move_scale = 1;
+static uint32_t last_move_tick = 0;
 
 #define COLLISION_UPDOWN_HALF_W 6
 #define COLLISION_UPDOWN_HALF_H 8
@@ -72,6 +74,9 @@ void character_init(int base_x, int base_y, int offset_x, int offset_y, int cam_
         char_facing[i] = (i == 0) ? CAR_DIR_NE : CAR_DIR_SW;
         character_full[i] = false;
     }
+
+    last_move_tick = 0;
+    move_scale = 1;
 }
 
 /**
@@ -104,13 +109,29 @@ static void character_move_player(int index, const control_t *keys, character_bl
     {
         int step_x = 2;
         int step_y = 2;
-        if (dir_x && dir_y)
-            step_y = 1;
-
         if (!character_full[index])
         {
             step_x += 1;
             step_y += 1;
+        }
+
+        if (move_scale > 1)
+        {
+            step_x *= move_scale;
+            step_y *= move_scale;
+        }
+
+        step_x = (step_x + 1) / 2;
+        step_y = (step_y + 1) / 2;
+
+        if (dir_x && dir_y)
+        {
+            step_y = (step_y + 1) / 2;
+            if (step_y < 1)
+            {
+                step_y = 1;
+            }
+            step_x = step_y * 2;
         }
 
         int next_x = *player_x + dir_x * step_x;
@@ -207,6 +228,18 @@ void character_update(const control_t *keys[2], character_block_fn is_blocked)
     const control_t *p1 = keys[0];
     const control_t *p2 = keys[1];
     bool has_p2 = (p2 != NULL);
+
+    uint32_t now = get_ticks();
+    if (last_move_tick == 0)
+        last_move_tick = now;
+    uint32_t dt = now - last_move_tick;
+    last_move_tick = now;
+    int scale = (int)((dt * 60) / TICKS_PER_SECOND);
+    if (scale < 1)
+        scale = 1;
+    if (scale > 4)
+        scale = 4;
+    move_scale = scale;
 
     if (has_p2)
     {
