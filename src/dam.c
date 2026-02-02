@@ -261,7 +261,7 @@ void dam_init(void)
     }
 
     uint32_t now = get_ticks();
-    next_break_tick = now + TICKS_PER_SECOND;
+    next_break_tick = now + TICKS_PER_SECOND * 5;
     breaking_section_count = 0;
 }
 
