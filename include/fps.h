@@ -10,7 +10,9 @@
 #define __FPS_H__
 
 #ifndef NDEBUG
+// fps_tick: Update FPS counter using libdragon ticks.
 void fps_tick(void);
+// fps_draw: Render FPS value in the top-right corner.
 void fps_draw(void);
 #else
 static inline void fps_tick(void)

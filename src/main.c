@@ -10,6 +10,7 @@
 #include <stdlib.h>
 
 #include "bgm.h"
+#include "character.h"
 #include "controls.h"
 #include "fps.h"
 #include "font.h"
@@ -41,11 +42,13 @@ int main()
     font_init();
     pause_init();
 
+    game_load_sprites();
+    character_load_vehicle_sprites();
+
     srand(TICKS_READ());
 
     new_timer(TIMER_TICKS(50000), TF_CONTINUOUS, screen_timer_title);
     surface_t *disp = NULL;
-    game_init();
 
     if (screen != intro) // auto start bgm if skipping intro
         bgm_start();
@@ -91,7 +94,10 @@ int main()
         case story: // story screen.
             screen_story(disp, keys);
             if (keys[0]->start || keys[0]->A || keys[0]->B)
+            {
+                game_init();
                 screen = game;
+            }
             break;
         case game: // main game loop
             if (screen_game(disp, keys))

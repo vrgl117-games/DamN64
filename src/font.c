@@ -8,6 +8,7 @@
 
 #include "font.h"
 
+// font_init: Load fonts and register them with rdpq.
 void font_init()
 {
     rdpq_font_t *font_debug = rdpq_font_load_builtin(FONT_BUILTIN_DEBUG_MONO);

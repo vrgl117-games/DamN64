@@ -25,22 +25,16 @@ screencapture -x /tmp/game.png  # capture frontmost
 ## Send inputs
 ```bash
 cliclick kp:enter        # Controller 1 Start
-cliclick kp:arrow-up     # Controller 1 D-pad up
-cliclick kp:arrow-down   # Controller 1 D-pad down
-cliclick kp:arrow-left   # Controller 1 D-pad left
-cliclick kp:arrow-right  # Controller 1 D-pad right
-cliclick t:a             # Controller 1 A button
-cliclick t:b             # Controller 1 B button
-cliclick t:l             # Controller 1 L button
-cliclick t:r             # Controller 1 R button
+cliclick kp:w            # Controller 1 D-pad up
+cliclick kp:s            # Controller 1 D-pad down
+cliclick kp:a            # Controller 1 D-pad left
+cliclick kp:d            # Controller 1 D-pad right
 cliclick t:z             # Controller 1 Z button
 
-cliclick t:u             # Controller 2 D-pad up
-cliclick t:j             # Controller 2 D-pad down
-cliclick t:h             # Controller 2 D-pad left
-cliclick t:k             # Controller 2 D-pad right
-cliclick t:s             # Controller 2 A button
-cliclick t:n             # Controller 2 B button
+cliclick kp:arrow-up     # Controller 2 D-pad up
+cliclick kp:arrow-down   # Controller 2 D-pad down
+cliclick kp:arrow-left   # Controller 2 D-pad left
+cliclick kp:arrow-right  # Controller 2 D-pad right
 ```
 
 Hold for duration:

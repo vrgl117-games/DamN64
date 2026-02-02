@@ -11,6 +11,7 @@
 
 #include <libdragon.h>
 
+// sprite_loadf: Format sprite path and load it.
 sprite_t *sprite_loadf(const char *const format, ...);
 
 #endif //__SPRITE_H__

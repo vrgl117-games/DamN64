@@ -42,9 +42,9 @@ static uint32_t last_move_tick = 0;
 #define COLLISION_DIAG_OFFSET_Y 2
 
 /**
- * @brief character_init: Load vehicle sprites and initialize character state.
+ * @brief character_load_vehicle_sprites: Load vehicle sprites.
  */
-void character_init(int base_x, int base_y, int offset_x, int offset_y, int cam_y)
+void character_load_vehicle_sprites(void)
 {
     garbage_yellow_sprites[CAR_DIR_N] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_yellow_N.sprite");
     garbage_yellow_sprites[CAR_DIR_NE] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_yellow_NE.sprite");
@@ -63,6 +63,14 @@ void character_init(int base_x, int base_y, int offset_x, int offset_y, int cam_
     garbage_red_sprites[CAR_DIR_SW] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_SW.sprite");
     garbage_red_sprites[CAR_DIR_W] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_W.sprite");
     garbage_red_sprites[CAR_DIR_NW] = sprite_load("rom:/gfx/sprites/isometric-vehicles/garbage_red_NW.sprite");
+}
+
+/**
+ * @brief character_init: Initialize character state.
+ */
+void character_init(int base_x, int base_y, int offset_x, int offset_y, int cam_y)
+{
+    character_load_vehicle_sprites();
 
     active_player = 0;
     stored_cam_y = cam_y;
@@ -355,6 +363,8 @@ bool character_is_full(int index)
  */
 sprite_t *character_get_vehicle_sprite(int color_index, int dir)
 {
+    character_load_vehicle_sprites();
+
     if (dir < 0 || dir >= CAR_DIR_COUNT)
         dir = CAR_DIR_S;
 

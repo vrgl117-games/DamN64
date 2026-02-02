@@ -15,11 +15,17 @@
 
 #include "controls.h"
 
+// pause_init: Initialize pause menu state.
 void pause_init(void);
+// pause_is_active: Return whether pause menu is active.
 bool pause_is_active(void);
+// pause_get_music_on: Return music toggle state.
 bool pause_get_music_on(void);
+// pause_get_rumble_on: Return rumble toggle state.
 bool pause_get_rumble_on(void);
+// pause_handle_input: Update pause menu state based on input.
 void pause_handle_input(control_t *keys[2]);
+// pause_draw: Render pause menu overlay.
 void pause_draw(display_context_t disp);
 
 #endif //__PAUSE_H__

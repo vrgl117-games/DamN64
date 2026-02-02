@@ -21,6 +21,7 @@ static wav64_t bgm_wav;
 static bool bgm_started = false;
 static bgm_track_t current_track = BGM_TRACK_INTRO_PAUSE;
 
+// bgm_init: Initialize audio and mixer state.
 void bgm_init()
 {
     audio_init(22050, 4);
@@ -60,6 +61,7 @@ static void bgm_open_track(bgm_track_t track)
     mixer_ch_set_vol(BGM_CHANNEL, GAME_VOLUME, GAME_VOLUME);
 }
 
+// bgm_pause: Lower music volume for pause.
 void bgm_pause()
 {
     if (!bgm_started)
@@ -68,6 +70,7 @@ void bgm_pause()
     bgm_set_volume(PAUSE_VOLUME);
 }
 
+// bgm_play: Restore normal music volume.
 void bgm_play()
 {
     if (!bgm_started)
@@ -76,6 +79,7 @@ void bgm_play()
     bgm_set_volume(GAME_VOLUME);
 }
 
+// bgm_mute: Mute music output.
 void bgm_mute()
 {
     if (!bgm_started)
@@ -84,6 +88,7 @@ void bgm_mute()
     bgm_set_volume(0.0f);
 }
 
+// bgm_set_track: Switch background music track.
 void bgm_set_track(bgm_track_t track)
 {
     if (current_track == track && bgm_started)
@@ -110,11 +115,13 @@ void bgm_set_track(bgm_track_t track)
         mixer_ch_set_pos(BGM_CHANNEL, pos);
 }
 
+// bgm_set_volume: Set music volume level.
 void bgm_set_volume(float volume)
 {
     mixer_ch_set_vol(BGM_CHANNEL, volume, volume);
 }
 
+// bgm_start: Start background music playback.
 void bgm_start()
 {
     if (bgm_started)
@@ -124,6 +131,7 @@ void bgm_start()
     bgm_started = true;
 }
 
+// bgm_stop: Stop background music playback.
 void bgm_stop()
 {
     mixer_ch_stop(BGM_CHANNEL);
@@ -135,6 +143,7 @@ void bgm_stop()
     audio_close();
 }
 
+// bgm_update: Feed audio mixer buffers.
 void bgm_update()
 {
     if (audio_can_write())

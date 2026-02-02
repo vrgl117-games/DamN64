@@ -34,6 +34,7 @@ typedef struct
 
 } control_t;
 
+// controls_get_keys: Poll controller input for both ports.
 control_t **controls_get_keys(void);
 
 #endif //__CONTROLS_H__

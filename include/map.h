@@ -82,9 +82,12 @@ typedef struct
 
 extern map_t game_map;
 
+// map_reset: Restore the map to its initial state.
 void map_reset(void);
 
+// map_draw: Draw tiles in row order.
 void map_draw(const map_t *map, const map_render_t *render, int cam_x, int view_width);
+// map_draw_buildings: Draw building tiles on top.
 void map_draw_buildings(const map_t *map, const map_render_t *render, int cam_x, int view_width);
 
 #endif //__MAP_H__

@@ -16,8 +16,11 @@
 
 typedef bool (*character_block_fn)(int world_x, int world_y, int index);
 
-// character_init: Load vehicle sprites and initialize character state.
+// character_init: Initialize character state.
 void character_init(int base_x, int base_y, int offset_x, int offset_y, int cam_y);
+
+// character_load_vehicle_sprites: Load vehicle sprites.
+void character_load_vehicle_sprites(void);
 
 // character_update: Update movement, facing, and active character(s).
 void character_update(const control_t *keys[2], character_block_fn is_blocked);

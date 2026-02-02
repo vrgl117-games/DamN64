@@ -9,7 +9,9 @@
 #ifndef __TITLE_H__
 #define __TITLE_H__
 
+// title_update: Update truck positions and spawning.
 void title_update(int screen_w);
+// title_draw: Render trucks on the band.
 void title_draw(int screen_w, int screen_h);
 
 #endif //__TITLE_H__

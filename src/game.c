@@ -141,6 +141,42 @@ static void update_plant_tiles(void);
 static void update_music_track(void);
 
 /**
+ * @brief game_load_sprites: Load sprites.
+ */
+void game_load_sprites(void)
+{
+    base_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_base.sprite");
+    building_right_red_two = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_two.sprite");
+    beton_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton.sprite");
+    beton_red_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton_red.sprite");
+    beton_yellow_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton_yellow.sprite");
+    building_right_brown_two = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_brown_two.sprite");
+    building_left_red_three = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_red_three.sprite");
+    building_left_white_one = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_white_one.sprite");
+    building_right_yellow_four = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_yellow_four.sprite");
+    building_left_white_six = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_white_six.sprite");
+    building_left_brown_three = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_brown_three.sprite");
+    water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water.sprite");
+    waves_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water_waves.sprite");
+    waves_boat_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water_waves_boat.sprite");
+    wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall.sprite");
+    broken_wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall.sprite");
+    broken_wall_water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall_water.sprite");
+    wall_water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall_water.sprite");
+    road_left_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_left.sprite");
+    road_right_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_right.sprite");
+    road_t_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_t.sprite");
+    road_d_left_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_d_left.sprite");
+    road_d_right_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_d_right.sprite");
+    road_corner_1_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_1.sprite");
+    road_corner_2_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_2.sprite");
+    road_corner_3_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_3.sprite");
+    road_corner_4_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_4.sprite");
+    tree_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_tree.sprite");
+    fountain_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_fountain.sprite");
+}
+
+/**
  * @brief update_truck_full: Set full state when driving below beton.
  */
 static void update_truck_full(void)
@@ -423,40 +459,11 @@ sprite_t *game_get_tile_sprite(tile_id_t tile_id)
 }
 
 /**
- * @brief game_init: Load sprites and initialize game state.
+ * @brief game_init: Initialize game state.
  */
 void game_init(void)
 {
     map_reset();
-    base_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_base.sprite");
-    building_right_red_two = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_two.sprite");
-    beton_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton.sprite");
-    beton_red_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton_red.sprite");
-    beton_yellow_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton_yellow.sprite");
-    building_right_brown_two = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_brown_two.sprite");
-    building_left_red_three = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_red_three.sprite");
-    building_left_white_one = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_white_one.sprite");
-    building_right_yellow_four = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_yellow_four.sprite");
-    building_left_white_six = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_white_six.sprite");
-    building_left_brown_three = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_brown_three.sprite");
-    water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water.sprite");
-    waves_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water_waves.sprite");
-    waves_boat_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water_waves_boat.sprite");
-    wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall.sprite");
-    broken_wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall.sprite");
-    broken_wall_water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall_water.sprite");
-    wall_water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall_water.sprite");
-    road_left_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_left.sprite");
-    road_right_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_right.sprite");
-    road_t_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_t.sprite");
-    road_d_left_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_d_left.sprite");
-    road_d_right_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_d_right.sprite");
-    road_corner_1_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_1.sprite");
-    road_corner_2_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_2.sprite");
-    road_corner_3_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_3.sprite");
-    road_corner_4_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_4.sprite");
-    tree_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_tree.sprite");
-    fountain_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_fountain.sprite");
 
     map_render.tile_sprites[TILE_NONE] = NULL;
     map_render.tile_sprites[TILE_BASE] = base_tile;
@@ -509,9 +516,9 @@ void game_init(void)
     map_pixel_height = (MAP_WIDTH + MAP_HEIGHT - 2) * half_h + ISO_H;
 
     int base_x = map_origin_x + (SPAWN_P1_GRID_X - SPAWN_P1_GRID_Y) * half_w + half_w;
-    int base_y = map_origin_y + (SPAWN_P1_GRID_X + SPAWN_P1_GRID_Y) * half_h + half_h;
+    int base_y = map_origin_y + (SPAWN_P1_GRID_X + SPAWN_P1_GRID_Y) * half_h + half_h + 6;
     int p2_x = map_origin_x + (SPAWN_P2_GRID_X - SPAWN_P2_GRID_Y) * half_w + half_w;
-    int p2_y = map_origin_y + (SPAWN_P2_GRID_X + SPAWN_P2_GRID_Y) * half_h + half_h;
+    int p2_y = map_origin_y + (SPAWN_P2_GRID_X + SPAWN_P2_GRID_Y) * half_h + half_h + 6;
 
     // Compute fixed vertical camera offset to center map on screen
     int screen_h = display_get_height();

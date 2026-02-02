@@ -15,6 +15,7 @@
 #define FONT_PIXEL_SQUARE 2
 #define FONT_PIXEL 3
 
+// font_init: Load fonts and register them with rdpq.
 void font_init();
 
 #endif //__FONT_H__
