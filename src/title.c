@@ -12,7 +12,6 @@
 
 #include "character.h"
 #include "game.h"
-#include "rdpq.h"
 
 #define TITLE_ISO_H 16
 #define TITLE_TRUCK_MAX 4

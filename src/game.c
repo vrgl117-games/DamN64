@@ -7,7 +7,6 @@
  */
 #include "game.h"
 
-#include "rdpq.h"
 #include "character.h"
 #include "dam.h"
 #include "pause.h"
@@ -24,36 +23,45 @@
 #define SPAWN_P2_GRID_X 20
 #define SPAWN_P2_GRID_Y 5
 
-static sprite_t *base_tile = NULL;
-static sprite_t *building_right_red_two = NULL;
-static sprite_t *beton_sprite = NULL;
-static sprite_t *beton_red_sprite = NULL;
-static sprite_t *beton_yellow_sprite = NULL;
-static sprite_t *building_right_brown_two = NULL;
-static sprite_t *building_left_red_three = NULL;
-static sprite_t *building_left_white_one = NULL;
-static sprite_t *building_right_yellow_four = NULL;
-static sprite_t *building_left_white_six = NULL;
-static sprite_t *building_left_brown_three = NULL;
-static sprite_t *water_tile = NULL;
-static sprite_t *waves_tile = NULL;
-static sprite_t *waves_boat_tile = NULL;
-static sprite_t *wall_tile = NULL;
-static sprite_t *broken_wall_tile = NULL;
-static sprite_t *broken_wall_water_tile = NULL;
-static sprite_t *wall_water_tile = NULL;
-static sprite_t *road_left_tile = NULL;
-static sprite_t *road_right_tile = NULL;
-static sprite_t *road_t_tile = NULL;
-static sprite_t *road_d_left_tile = NULL;
-static sprite_t *road_d_right_tile = NULL;
-static sprite_t *road_corner_1_tile = NULL;
-static sprite_t *road_corner_2_tile = NULL;
-static sprite_t *road_corner_3_tile = NULL;
-static sprite_t *road_corner_4_tile = NULL;
-static sprite_t *tree_tile = NULL;
-static sprite_t *fountain_tile = NULL;
 static map_render_t map_render = {0};
+
+typedef struct
+{
+    tile_id_t id;
+    const char *path;
+} tile_asset_t;
+
+static const tile_asset_t tile_assets[] = {
+    {TILE_BASE, "rom:/gfx/sprites/isometric-city/cityTiles_base.sprite"},
+    {TILE_BUILDING_RIGHT_RED_TWO, "rom:/gfx/sprites/isometric-city/cityBuilding_right_red_two.sprite"},
+    {TILE_BETON, "rom:/gfx/sprites/isometric-city/cityTiles_beton.sprite"},
+    {TILE_BETON_RED, "rom:/gfx/sprites/isometric-city/cityTiles_beton_red.sprite"},
+    {TILE_BETON_YELLOW, "rom:/gfx/sprites/isometric-city/cityTiles_beton_yellow.sprite"},
+    {TILE_BUILDING_RIGHT_BROWN_TWO, "rom:/gfx/sprites/isometric-city/cityBuilding_right_brown_two.sprite"},
+    {TILE_BUILDING_LEFT_RED_THREE, "rom:/gfx/sprites/isometric-city/cityBuilding_left_red_three.sprite"},
+    {TILE_BUILDING_LEFT_WHITE_ONE, "rom:/gfx/sprites/isometric-city/cityBuilding_left_white_one.sprite"},
+    {TILE_BUILDING_RIGHT_YELLOW_FOUR, "rom:/gfx/sprites/isometric-city/cityBuilding_right_yellow_four.sprite"},
+    {TILE_BUILDING_LEFT_WHITE_SIX, "rom:/gfx/sprites/isometric-city/cityBuilding_left_white_six.sprite"},
+    {TILE_BUILDING_LEFT_BROWN_THREE, "rom:/gfx/sprites/isometric-city/cityBuilding_left_brown_three.sprite"},
+    {TILE_WATER, "rom:/gfx/sprites/isometric-city/cityTiles_water.sprite"},
+    {TILE_WAVES, "rom:/gfx/sprites/isometric-city/cityTiles_water_waves.sprite"},
+    {TILE_WAVES_BOAT, "rom:/gfx/sprites/isometric-city/cityTiles_water_waves_boat.sprite"},
+    {TILE_WALL, "rom:/gfx/sprites/isometric-city/cityTiles_wall.sprite"},
+    {TILE_BROKEN_WALL, "rom:/gfx/sprites/isometric-city/cityTiles_broken_wall.sprite"},
+    {TILE_BROKEN_WALL_WATER, "rom:/gfx/sprites/isometric-city/cityTiles_broken_wall_water.sprite"},
+    {TILE_WALL_WATER, "rom:/gfx/sprites/isometric-city/cityTiles_wall_water.sprite"},
+    {TILE_ROAD_LEFT, "rom:/gfx/sprites/isometric-city/cityTiles_road_left.sprite"},
+    {TILE_ROAD_RIGHT, "rom:/gfx/sprites/isometric-city/cityTiles_road_right.sprite"},
+    {TILE_ROAD_T, "rom:/gfx/sprites/isometric-city/cityTiles_road_t.sprite"},
+    {TILE_ROAD_D_LEFT, "rom:/gfx/sprites/isometric-city/cityTiles_road_d_left.sprite"},
+    {TILE_ROAD_D_RIGHT, "rom:/gfx/sprites/isometric-city/cityTiles_road_d_right.sprite"},
+    {TILE_ROAD_CORNER_1, "rom:/gfx/sprites/isometric-city/cityTiles_road_corner_1.sprite"},
+    {TILE_ROAD_CORNER_2, "rom:/gfx/sprites/isometric-city/cityTiles_road_corner_2.sprite"},
+    {TILE_ROAD_CORNER_3, "rom:/gfx/sprites/isometric-city/cityTiles_road_corner_3.sprite"},
+    {TILE_ROAD_CORNER_4, "rom:/gfx/sprites/isometric-city/cityTiles_road_corner_4.sprite"},
+    {TILE_TREE, "rom:/gfx/sprites/isometric-city/cityTiles_tree.sprite"},
+    {TILE_FOUNTAIN, "rom:/gfx/sprites/isometric-city/cityTiles_fountain.sprite"},
+};
 
 // Split-screen configuration
 #define DIVIDER_WIDTH 2    // Width of the divider line
@@ -138,35 +146,8 @@ static void update_music_track(void);
  */
 void game_load_sprites(void)
 {
-    base_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_base.sprite");
-    building_right_red_two = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_red_two.sprite");
-    beton_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton.sprite");
-    beton_red_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton_red.sprite");
-    beton_yellow_sprite = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_beton_yellow.sprite");
-    building_right_brown_two = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_brown_two.sprite");
-    building_left_red_three = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_red_three.sprite");
-    building_left_white_one = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_white_one.sprite");
-    building_right_yellow_four = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_right_yellow_four.sprite");
-    building_left_white_six = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_white_six.sprite");
-    building_left_brown_three = sprite_load("rom:/gfx/sprites/isometric-city/cityBuilding_left_brown_three.sprite");
-    water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water.sprite");
-    waves_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water_waves.sprite");
-    waves_boat_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_water_waves_boat.sprite");
-    wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall.sprite");
-    broken_wall_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall.sprite");
-    broken_wall_water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_broken_wall_water.sprite");
-    wall_water_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_wall_water.sprite");
-    road_left_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_left.sprite");
-    road_right_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_right.sprite");
-    road_t_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_t.sprite");
-    road_d_left_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_d_left.sprite");
-    road_d_right_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_d_right.sprite");
-    road_corner_1_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_1.sprite");
-    road_corner_2_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_2.sprite");
-    road_corner_3_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_3.sprite");
-    road_corner_4_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_road_corner_4.sprite");
-    tree_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_tree.sprite");
-    fountain_tile = sprite_load("rom:/gfx/sprites/isometric-city/cityTiles_fountain.sprite");
+    for (int i = 0; i < (int)(sizeof(tile_assets) / sizeof(tile_assets[0])); i++)
+        map_render.tile_sprites[tile_assets[i].id] = sprite_load(tile_assets[i].path);
 }
 
 /**
@@ -440,7 +421,7 @@ void game_draw_title_band(sprite_t *tile, int screen_w, int screen_h)
  */
 void game_draw_title_background(int screen_w, int screen_h)
 {
-    game_draw_title_band(base_tile, screen_w, screen_h);
+    game_draw_title_band(map_render.tile_sprites[TILE_BASE], screen_w, screen_h);
 }
 
 // game_get_tile_sprite: Return tile sprite by tile id.
@@ -458,37 +439,7 @@ void game_init(void)
 {
     map_reset();
 
-    map_render.tile_sprites[TILE_NONE] = NULL;
-    map_render.tile_sprites[TILE_BASE] = base_tile;
-    map_render.tile_sprites[TILE_BUILDING_RIGHT_RED_TWO] = building_right_red_two;
-    map_render.tile_sprites[TILE_WATER] = water_tile;
-    map_render.tile_sprites[TILE_WALL] = wall_tile;
-    map_render.tile_sprites[TILE_BROKEN_WALL] = broken_wall_tile;
-    map_render.tile_sprites[TILE_BROKEN_WALL_WATER] = broken_wall_water_tile;
-    map_render.tile_sprites[TILE_WALL_WATER] = wall_water_tile;
-    map_render.tile_sprites[TILE_WAVES] = waves_tile;
-    map_render.tile_sprites[TILE_WAVES_BOAT] = waves_boat_tile;
-    map_render.tile_sprites[TILE_BETON] = beton_sprite;
-    map_render.tile_sprites[TILE_ROAD_LEFT] = road_left_tile;
-    map_render.tile_sprites[TILE_ROAD_RIGHT] = road_right_tile;
-    map_render.tile_sprites[TILE_ROAD_T] = road_t_tile;
-    map_render.tile_sprites[TILE_ROAD_D_LEFT] = road_d_left_tile;
-    map_render.tile_sprites[TILE_ROAD_D_RIGHT] = road_d_right_tile;
-    map_render.tile_sprites[TILE_ROAD_CORNER_1] = road_corner_1_tile;
-    map_render.tile_sprites[TILE_ROAD_CORNER_2] = road_corner_2_tile;
-    map_render.tile_sprites[TILE_ROAD_CORNER_3] = road_corner_3_tile;
-    map_render.tile_sprites[TILE_ROAD_CORNER_4] = road_corner_4_tile;
-    map_render.tile_sprites[TILE_TREE] = tree_tile;
-    map_render.tile_sprites[TILE_FOUNTAIN] = fountain_tile;
-    map_render.tile_sprites[TILE_BETON_RED] = beton_red_sprite;
-    map_render.tile_sprites[TILE_BETON_YELLOW] = beton_yellow_sprite;
-    map_render.tile_sprites[TILE_BUILDING_RIGHT_BROWN_TWO] = building_right_brown_two;
-    map_render.tile_sprites[TILE_BUILDING_LEFT_RED_THREE] = building_left_red_three;
-    map_render.tile_sprites[TILE_BUILDING_LEFT_WHITE_ONE] = building_left_white_one;
-    map_render.tile_sprites[TILE_BUILDING_RIGHT_YELLOW_FOUR] = building_right_yellow_four;
-    map_render.tile_sprites[TILE_BUILDING_LEFT_WHITE_SIX] = building_left_white_six;
-    map_render.tile_sprites[TILE_BUILDING_LEFT_BROWN_THREE] = building_left_brown_three;
-
+    sprite_t *base_tile = map_render.tile_sprites[TILE_BASE];
     spr_w = base_tile->width;
     spr_h = base_tile->height;
 
@@ -799,10 +750,4 @@ void game_draw(display_context_t disp)
     fps_draw();
 #endif
     rdpq_detach_show();
-}
-
-// game_get_broken_sections: Return number of broken wall sections.
-int game_get_broken_sections(void)
-{
-    return dam_get_broken_sections();
 }

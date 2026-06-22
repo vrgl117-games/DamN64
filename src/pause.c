@@ -12,7 +12,6 @@
 
 #include "bgm.h"
 #include "font.h"
-#include "rdpq.h"
 
 extern const color_t background;
 
@@ -165,15 +164,6 @@ void pause_handle_input(control_t *keys[2])
 }
 
 /**
- * @brief pause_draw_line: Draw a centered line with emphasis.
- */
-static void pause_draw_line(int screen_w, int x, int y, const char *text)
-{
-    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
-                    FONT_PIXEL, x, y, text);
-}
-
-/**
  * @brief pause_draw: Render pause menu overlay.
  */
 void pause_draw(display_context_t disp)
@@ -213,8 +203,10 @@ void pause_draw(display_context_t disp)
     rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
                     FONT_PIXEL_SQUARE, 0, screen_h / 6, title);
 
-    pause_draw_line(screen_w, 0, screen_h / 2 - 16, music_line);
-    pause_draw_line(screen_w, 0, screen_h / 2 + 16, rumble_line);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, screen_h / 2 - 16, music_line);
+    rdpq_text_print(&(rdpq_textparms_t){.width = screen_w, .align = ALIGN_CENTER},
+                    FONT_PIXEL, 0, screen_h / 2 + 16, rumble_line);
 
     rdpq_detach_show();
 }

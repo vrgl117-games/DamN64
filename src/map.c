@@ -7,7 +7,6 @@
  */
 
 #include "map.h"
-#include "rdpq.h"
 
 #include <string.h>
 

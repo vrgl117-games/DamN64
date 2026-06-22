@@ -28,14 +28,8 @@ void character_update(const control_t *keys[2], character_block_fn is_blocked);
 // character_draw: Render both vehicles in depth order.
 void character_draw(int cam_x);
 
-// character_draw_single: Render a single vehicle by index.
-void character_draw_single(int index, int cam_x);
-
 // character_get_position: Fetch a character's world position.
 void character_get_position(int index, int *x, int *y);
-
-// character_get_active_player: Return active player index.
-int character_get_active_player(void);
 
 // character_get_vehicle_sprite: Fetch vehicle sprite for color and direction.
 sprite_t *character_get_vehicle_sprite(int color_index, int dir);

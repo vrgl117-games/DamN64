@@ -26,7 +26,4 @@ void game_draw_title_band(sprite_t *tile, int screen_w, int screen_h);
 sprite_t *game_get_tile_sprite(tile_id_t tile_id);
 // game_load_sprites: Load sprites.
 void game_load_sprites(void);
-// game_get_broken_sections: Return number of broken wall sections.
-int game_get_broken_sections(void);
-
 #endif //__GAME_H__

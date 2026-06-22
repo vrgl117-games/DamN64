@@ -131,18 +131,6 @@ void bgm_start()
     bgm_started = true;
 }
 
-// bgm_stop: Stop background music playback.
-void bgm_stop()
-{
-    mixer_ch_stop(BGM_CHANNEL);
-    wav64_close(&bgm_wav);
-
-    bgm_started = false;
-
-    mixer_close();
-    audio_close();
-}
-
 // bgm_update: Feed audio mixer buffers.
 void bgm_update()
 {

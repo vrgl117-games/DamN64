@@ -21,8 +21,6 @@ typedef enum screens
     game_over,
 } screen_t;
 
-// screen_init: Initialize screen state.
-void screen_init();
 // screen_intro: Render intro sequence, returns true when done.
 bool screen_intro(display_context_t disp);
 // screen_timer_title: Advance intro timer.

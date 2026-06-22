@@ -6,7 +6,6 @@
  */
 
 #include "character.h"
-#include "rdpq.h"
 
 #define CHARACTER_COUNT 2
 #define CAR_DIR_COUNT 8
@@ -263,28 +262,6 @@ void character_update(const control_t *keys[2], character_block_fn is_blocked)
 }
 
 /**
- * @brief character_draw_single: Render a single vehicle by index.
- */
-void character_draw_single(int index, int cam_x)
-{
-    if (index < 0 || index >= CHARACTER_COUNT)
-        return;
-
-    int dir = char_facing[index];
-    if (dir < 0 || dir >= CAR_DIR_COUNT)
-        dir = CAR_DIR_S;
-
-    sprite_t *car = (index == 0) ? garbage_yellow_sprites[dir] : garbage_red_sprites[dir];
-    if (!car)
-        return;
-
-    int screen_x = character_x[index] - cam_x - (car->width / 2);
-    int screen_y = character_y[index] - stored_cam_y - car->height + ISO_H_HALF;
-
-    rdpq_sprite_blit(car, screen_x, screen_y, NULL);
-}
-
-/**
  * @brief character_draw: Render both vehicles in depth order.
  */
 void character_draw(int cam_x)
@@ -329,14 +306,6 @@ void character_get_position(int index, int *x, int *y)
         *x = character_x[index];
     if (y)
         *y = character_y[index];
-}
-
-/**
- * @brief character_get_active_player: Return active player index.
- */
-int character_get_active_player(void)
-{
-    return active_player;
 }
 
 // character_set_full: Set whether a player is carrying concrete.

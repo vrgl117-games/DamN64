@@ -9,13 +9,13 @@
 #include "screens.h"
 
 #include "bgm.h"
+#include "dam.h"
 #ifndef NDEBUG
 #include "fps.h"
 #endif
 #include "font.h"
 #include "game.h"
 #include "pause.h"
-#include "rdpq.h"
 #include "title.h"
 
 extern const color_t background;
@@ -26,11 +26,6 @@ static void screen_stop_rumble(void)
 {
     joypad_set_rumble_active(JOYPAD_PORT_1, false);
     joypad_set_rumble_active(JOYPAD_PORT_2, false);
-}
-
-// screen_init: Initialize screen state.
-void screen_init()
-{
 }
 
 // display the n64 logo and then the VRGL117 Games logo.
@@ -92,7 +87,10 @@ bool screen_intro(display_context_t disp)
         int screen_h = display_get_height();
         int intro_x = (screen_w / 2) - (intro->width / 2);
         int intro_y = (screen_h * 5) / 16;
-        rdpq_draw_faded_sprite(intro, intro_x, intro_y, alpha);
+        rdpq_set_mode_standard();
+        rdpq_mode_blender(RDPQ_BLENDER_MULTIPLY_CONST);
+        rdpq_set_fog_color(RGBA32(255, 255, 255, alpha));
+        rdpq_sprite_blit(intro, intro_x, intro_y, NULL);
         rdpq_detach_show();
         sprite_free(intro);
     }
@@ -262,7 +260,7 @@ bool screen_game(display_context_t disp, control_t *keys[2])
     {
         game_update(keys);
         game_draw(disp);
-        if (game_get_broken_sections() >= 3)
+        if (dam_get_broken_sections() >= 3)
             return true;
     }
 

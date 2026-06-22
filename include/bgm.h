@@ -34,8 +34,6 @@ void bgm_set_track(bgm_track_t track);
 void bgm_set_volume(float volume);
 // bgm_start: Start background music playback.
 void bgm_start();
-// bgm_stop: Stop background music playback.
-void bgm_stop();
 // bgm_update: Feed audio mixer buffers.
 void bgm_update();
 

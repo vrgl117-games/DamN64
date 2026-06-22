@@ -15,7 +15,6 @@
 
 #include "font.h"
 #include "map.h"
-#include "rdpq.h"
 
 typedef enum
 {
@@ -91,35 +90,13 @@ static void start_breaking_wall(wall_section_t *section, uint32_t now)
 }
 
 /**
- * @brief pick_intact_index: Pick an intact wall index.
- */
-static int pick_intact_index(void)
-{
-    int pick = -1;
-    int seen = 0;
-
-    for (int i = 0; i < wall_intact_count; i++)
-    {
-        seen++;
-        if ((rand() % seen) == 0)
-            pick = i;
-    }
-
-    return pick;
-}
-
-/**
  * @brief start_breaking_random_walls: Start breaking random wall sections.
  */
 static void start_breaking_random_walls(int count, uint32_t now)
 {
     for (int i = 0; i < count && wall_intact_count > 0; i++)
     {
-        int intact_index = pick_intact_index();
-        if (intact_index < 0)
-            intact_index = pick_intact_index();
-        if (intact_index < 0)
-            return;
+        int intact_index = rand() % wall_intact_count;
 
         int section_index = wall_intact_indices[intact_index];
         wall_section_t *section = &wall_sections[section_index];
